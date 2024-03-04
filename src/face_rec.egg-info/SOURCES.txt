@@ -1,0 +1,12 @@
+README.md
+setup.py
+src/face_rec/cli.py
+src/face_rec/dataset_face.py
+src/face_rec/face_recognition.py
+src/face_rec/model_creation.py
+src/face_rec.egg-info/PKG-INFO
+src/face_rec.egg-info/SOURCES.txt
+src/face_rec.egg-info/dependency_links.txt
+src/face_rec.egg-info/entry_points.txt
+src/face_rec.egg-info/requires.txt
+src/face_rec.egg-info/top_level.txt
