@@ -23,7 +23,7 @@ def train(path, model):
 
 @cli.command(help="Test the face recognition")
 @click.option("-i", "--input", help="Input video", default=0, required=False)
-@click.option("-m", "--model", help="Path to store the model", default='./trainer1.yml', required=False)
+@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
 
 def tester(input, model):
     face_recognition.main(input, model)

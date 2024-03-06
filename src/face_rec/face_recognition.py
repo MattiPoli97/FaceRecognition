@@ -9,9 +9,8 @@ def main(input, model):
 
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    id = 1 #two persons 
-
-    names = ['','Mattia',] 
+    names = ['','Mattia','Diana', 'Giulia'] 
+    id = 3
 
     # Initialize and start realtime video capture
     cam = cv2.VideoCapture(input)
