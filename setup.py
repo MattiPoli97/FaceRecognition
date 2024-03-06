@@ -18,7 +18,8 @@ setup(
         "pathlib",
         "setuptools",
         "pillow",
-        "click"
+        "click",
+        "pygame"
     ],
     entry_points={
         "console_scripts": ["face_rec=face_rec.cli:cli"]

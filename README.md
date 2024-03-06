@@ -3,8 +3,8 @@ Basic code for the implementation of face recognition. Commands:
 
 ```bash
 % cd FaceRecognition
-$ python -m venv venv (MacOS) or venv\Scripts\activate (Windows)
-$ source venv/bin/activate
+$ python -m venv venv 
+$ source venv/bin/activate (MacOS)  or venv\Scripts\activate (Windows)
 $ pip install .
 $ face_rec --help
 Usage: face_rec [OPTIONS] COMMAND [ARGS]...
@@ -14,6 +14,7 @@ Options:
 
 Commands:
   createdataset  Command for dataset Creation
+  memorygame     Commanf to start the game
   tester         Test the face recognition
   train          Command for dataset Creation
 ```

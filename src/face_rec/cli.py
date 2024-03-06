@@ -1,6 +1,7 @@
 from . import dataset_face
 from . import face_recognition
 from . import model_creation
+from . import game
 import click
 
 @click.group()
@@ -28,5 +29,9 @@ def train(path, model):
 def tester(input, model):
     face_recognition.main(input, model)
 
+@cli.command(help="Commanf to start the game")
+@click.option("-i", "--input", help="Input folder with images for memory", default = "./images")
+def memorygame(input):
+    game.main(input)
 if __name__ == "__main__":
     cli()

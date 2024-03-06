@@ -1,4 +1,5 @@
 import cv2
+import time
 
 def main(input, width, height, face_id) :
     cap = cv2.VideoCapture(input)
@@ -11,9 +12,9 @@ def main(input, width, height, face_id) :
     print("\n Initializing face capture ...")
 
     count = 0
-
+    time.sleep(10)
     while(True):
-
+        
         ret, img = cap.read()
         if not ret:
             break
@@ -22,14 +23,15 @@ def main(input, width, height, face_id) :
         faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
         for (x,y,w,h) in faces:
-
+            time.sleep(2)
             cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)     
             count += 1
-
+            print(f"\n Captured Image : {count}/30 ...")
             # Saving
             cv2.imwrite("./dataset/User." + str(face_id) + '.' + str(count) + ".png", gray[y:y+h,x:x+w])
 
             cv2.imshow('image', img)
+            
 
         k = cv2.waitKey(100) & 0xff 
         if k == 27:

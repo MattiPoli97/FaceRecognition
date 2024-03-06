@@ -3,6 +3,7 @@ setup.py
 src/face_rec/cli.py
 src/face_rec/dataset_face.py
 src/face_rec/face_recognition.py
+src/face_rec/game.py
 src/face_rec/model_creation.py
 src/face_rec.egg-info/PKG-INFO
 src/face_rec.egg-info/SOURCES.txt

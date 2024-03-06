@@ -5,3 +5,4 @@ pathlib
 setuptools
 pillow
 click
+pygame
