@@ -10,7 +10,7 @@ def main(input, model):
     font = cv2.FONT_HERSHEY_SIMPLEX
 
     names = ['','Mattia','Diana', 'Giulia'] 
-    id = 3
+    id = len(names) -1
 
     # Initialize and start realtime video capture
     cam = cv2.VideoCapture(input)
