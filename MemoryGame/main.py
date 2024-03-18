@@ -4,6 +4,10 @@ import random
 
 pygame.init()
 
+# Play backgroung music
+bg_sound = pygame.mixer.Sound('background_music.wav')
+bg_sound.play()
+
 # Time variables
 hide_time = 1000
 pic_display_time = 2000
@@ -13,6 +17,7 @@ finish_time = 2000
 gameWidth = 840
 gameHeight = 640
 picSize = 200
+enlarged_size = 500
 gameColumns = 3
 gameRows = 2
 padding = 20
@@ -28,7 +33,7 @@ selection2 = None
 # Loading the pygame screen.
 screen = pygame.display.set_mode((gameWidth, gameHeight))
 pygame.display.set_caption('Memory Game')
-gameIcon = pygame.image.load('images/Apple.png')
+gameIcon = pygame.image.load('flower.png')
 pygame.display.set_icon(gameIcon)
 
 # Load the BackGround image into Python
@@ -94,10 +99,22 @@ while gameLoop:
             # Display the matched image full-screen
             pygame.time.wait(hide_time)
             screen.fill(WHITE)
-            pic_rect = memPics[selection1].get_rect(center=(gameWidth // 2, gameHeight // 2))
-            screen.blit(memPics[selection1], pic_rect)  # Display the image
+            scaled_img = pygame.transform.scale(memPics[selection1], (enlarged_size, enlarged_size))
+            img_rect = scaled_img.get_rect(center=(gameWidth // 2, gameHeight // 2))
+            screen.blit(scaled_img, img_rect)  # Display the image
             pygame.display.update()
             pygame.time.wait(pic_display_time)
+
+            # if memoryPictures[selection1] == music
+            # bg_sound.fadeout()
+            # music = pygame.mixer.Sound('path/to/my/soundfile.wav')
+            # music.play()
+            # pygame.time.wait(1 minuto?)
+            # music.fadeout()
+            # bg_sound.play()
+
+            # if memoryPictures[selection1] == proverbio
+            # display proverbi ...
 
         else:
             # If the pair doesn't match, hide the images after a brief delay
