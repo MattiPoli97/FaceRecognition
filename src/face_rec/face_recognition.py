@@ -1,7 +1,17 @@
 import cv2
 from pathlib import Path
+from . import game
+import time
+import subprocess
+import random
+import pygame
 
-def main(input, model):
+def main(input, model, image_folder):
+    # Play backgroung music
+    pygame.init()
+    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3')]
+    bg_sound = random.choice(bg_sounds)
+    bg_sound.play()
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(model)   #load trained model
     
@@ -22,7 +32,7 @@ def main(input, model):
     i = 0
 
     while True:
-
+        
         ret, img = cam.read()
         if not ret:
             break
@@ -54,8 +64,15 @@ def main(input, model):
             cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
         
         cv2.imshow('camera',img) 
-        output = Path("./test")
-        cv2.imwrite(f'{output}/test_{i}.png', img)
+        
+        if id in names:
+            #text_to_speak = "Good morning Angela!! It's time to wake up. Today will be a beatiful day and it's time to shyne!"
+            text_to_speak = f"Buongiorno {id}!!" #It's time to wake up. Today will be a beatiful day and it's time to shyne!"
+            speak(text_to_speak)
+            time.sleep(2)
+            cam.release()
+            cv2.destroyAllWindows()
+            game.main(input, model, image_folder)
         i += 1
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -63,6 +80,10 @@ def main(input, model):
 
     cam.release()
     cv2.destroyAllWindows()
+
+def speak(text):
+    #subprocess.call(['say', '-v', 'Reed', text])
+    subprocess.call(['say','-v', 'Alice', text])
 
 if __name__ == "__main__":
     main()
