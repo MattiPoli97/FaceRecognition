@@ -67,8 +67,10 @@ def main(input, model, image_folder):
         
         if id in names:
             #text_to_speak = "Good morning Angela!! It's time to wake up. Today will be a beatiful day and it's time to shyne!"
-            text_to_speak = f"Buongiorno {id}!!" #It's time to wake up. Today will be a beatiful day and it's time to shyne!"
+            bg_sound.set_volume(0.2)
+            text_to_speak = f"Buongiorno {id}!! é tempo di brillare" #It's time to wake up. Today will be a beatiful day and it's time to shyne!"
             speak(text_to_speak)
+            bg_sound.set_volume(1)
             time.sleep(2)
             cam.release()
             cv2.destroyAllWindows()
