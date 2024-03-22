@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+import cv2
 import sys
 from . import face_recognition
 
@@ -39,9 +40,12 @@ class MemoryGame:
         pygame.display.set_caption('Memory Game')
       
         # Load the background image
-        self.bgImage = pygame.image.load('Background.png')
-        self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
-        self.bgImageRect = self.bgImage.get_rect()
+        self.bgImage = cv2.imread('Background.png')
+        self.bgImage = cv2.resize(self.bgImage, (self.gameWidth, self.gameHeight))
+        self.bgImage = cv2.rotate(self.bgImage, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        self.bgImage = cv2.cvtColor(self.bgImage, cv2.COLOR_BGR2RGB)
+        self.bgImageSurf = pygame.surfarray.make_surface(self.bgImage)
+        self.bgImageRect = self.bgImageSurf.get_rect()
 
         # Create list of Memory Pictures
         self.memoryPictures = images
@@ -56,9 +60,12 @@ class MemoryGame:
         self.memPicsRect = []
         self.hiddenImages = []
         for item in self.memoryPictures:
-            picture = pygame.image.load(item)
-            picture = pygame.transform.scale(picture, (self.picSize, self.picSize))
-            self.memPics.append(picture)
+            picture = cv2.imread(item)
+            picture = cv2.resize(picture, (self.picSize, self.picSize))
+            picture = cv2.rotate(picture, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            picture = cv2.cvtColor(picture, cv2.COLOR_BGR2RGB)
+            picture_surf = pygame.surfarray.make_surface(picture)
+            self.memPics.append(picture_surf)
 
         for i in range(self.gameRows):
             for j in range(self.gameColumns):
@@ -74,7 +81,7 @@ class MemoryGame:
     def play(self):
         gameLoop = True
         while gameLoop:
-            self.screen.blit(self.bgImage, self.bgImageRect)
+            self.screen.blit(self.bgImageSurf, self.bgImageRect)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -102,9 +109,18 @@ class MemoryGame:
                 if self.memoryPictures[self.selection1] == self.memoryPictures[self.selection2]:
                     pygame.time.wait(self.hide_time)
                     self.screen.fill(self.WHITE)
-                    scaled_img = pygame.transform.scale(self.memPics[self.selection1], (self.enlarged_size, self.enlarged_size))
-                    img_rect = scaled_img.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
-                    self.screen.blit(scaled_img, img_rect)
+                    # Convert Pygame surface to numpy array
+                    img_array = pygame.surfarray.array3d(self.memPics[self.selection1])
+                    # Convert RGB to BGR (OpenCV uses BGR)
+                    img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+                    # Resize using OpenCV
+                    scaled_img = cv2.resize(img_array, (self.enlarged_size, self.enlarged_size))
+                    # Convert back to RGB
+                    scaled_img = cv2.cvtColor(scaled_img, cv2.COLOR_BGR2RGB)
+                    # Convert numpy array back to Pygame surface
+                    scaled_surf = pygame.surfarray.make_surface(scaled_img)
+                    img_rect = scaled_surf.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
+                    self.screen.blit(scaled_surf, img_rect)
                     pygame.display.update()
                     pygame.time.wait(self.pic_display_time)
                 else:
@@ -124,7 +140,7 @@ class MemoryGame:
         pygame.quit()
 
     def show_win_message(self):
-        self.screen.blit(self.bgImage, self.bgImageRect)
+        self.screen.blit(self.bgImageSurf, self.bgImageRect)
         pygame.display.flip()
         pygame.time.wait(500)
         rect_width = 400
@@ -140,11 +156,11 @@ class MemoryGame:
         pygame.time.wait(self.finish_time)
         face_recognition.main(self.input, self.model, self.images)
 
-def main(input, model, image_folder) :
-    if isinstance(image_folder, str)  :
+def main(input, model, image_folder):
+    if isinstance(image_folder, str):
         images = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith(".jpeg") or file.endswith(".png")]
     else :
-        images =image_folder
+        images = image_folder
     game = MemoryGame(input, model, images)
     game.play()
 
