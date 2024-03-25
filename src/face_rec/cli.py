@@ -1,7 +1,7 @@
 from . import dataset_face
 from . import face_recognition
 from . import model_creation
-from . import game
+#from . import game
 import click
 
 @click.group()
@@ -22,18 +22,19 @@ def createdataset(input, width, height, identifier):
 def train(path, model):
     model_creation.main(path, model)
 
-@cli.command(help="Test the face recognition")
+@cli.command(help="Command to start the application: recogntion and game")
 @click.option("-i", "--input", help="Input video", default=0, required=False)
 @click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
 @click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
 def application(input, model, image_folder):
     face_recognition.main(input, model, image_folder)
 
-@cli.command(help="Command to start the game")
-@click.option("-i", "--input", help="Input video", default=0, required=False)
-@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
-@click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
-def memorygame(input, model, image_folder):
-    game.main(input, model, image_folder)
+#@cli.command(help="Command to start the game")
+#@click.option("-i", "--input", help="Input video", default=0, required=False)
+#@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
+#@click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
+#def memorygame(input, model, image_folder):
+#    game.main(input, model, image_folder)
+
 if __name__ == "__main__":
     cli()

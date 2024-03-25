@@ -5,6 +5,7 @@ import time
 import subprocess
 import random
 import pygame
+import datetime
 
 def main(input, model, image_folder):
     # Play backgroung music
@@ -29,7 +30,7 @@ def main(input, model, image_folder):
     minW = 30
     minH = 30
 
-    i = 0
+    endTime = datetime.datetime.now() + datetime.timedelta(seconds=10)
 
     while True:
         
@@ -66,16 +67,27 @@ def main(input, model, image_folder):
         cv2.imshow('camera',img) 
         
         if id in names:
-            #text_to_speak = "Good morning Angela!! It's time to wake up. Today will be a beatiful day and it's time to shyne!"
+            #text_to_speak = "Good morning {id}!! It's time to wake up. Today will be a beatiful day and it's time to shyne!"
             bg_sound.set_volume(0.2)
-            text_to_speak = f"Buongiorno {id}!! é tempo di brillare" #It's time to wake up. Today will be a beatiful day and it's time to shyne!"
+            text_to_speak_intro = f"Buongiorno {id}. Benvenuto nel giardino parlante!!"
+            text_to_speak = f"Come stai oggi {id}"
+            speak(text_to_speak_intro)
+            time.sleep(2)
             speak(text_to_speak)
             bg_sound.set_volume(1)
             time.sleep(2)
             cam.release()
             cv2.destroyAllWindows()
             game.main(input, model, image_folder)
-        i += 1
+        
+        if datetime.datetime.now() >= endTime:
+            bg_sound.set_volume(0.2)
+            text_to_speak_intro = f"Buongiorno. Benvenuto nel giardino parlante!!"
+            speak(text_to_speak_intro)
+            cam.release()
+            cv2.destroyAllWindows()
+            game.main(input, model, image_folder)
+            
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
