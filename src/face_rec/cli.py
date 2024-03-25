@@ -1,7 +1,7 @@
 from . import dataset_face
 from . import face_recognition
 from . import model_creation
-#from . import game
+from . import test_model
 import click
 
 @click.group()
@@ -29,12 +29,11 @@ def train(path, model):
 def application(input, model, image_folder):
     face_recognition.main(input, model, image_folder)
 
-#@cli.command(help="Command to start the game")
-#@click.option("-i", "--input", help="Input video", default=0, required=False)
-#@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
-#@click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
-#def memorygame(input, model, image_folder):
-#    game.main(input, model, image_folder)
+@cli.command(help="Command to test the detection on single image")
+@click.option("-i", "--input", help="Input image", default="dataset/Validation/User.15.9.png", required=False)
+@click.option("-m", "--model", help="Path to store the model", default='./test.yml', required=False)
+def testmodel(input, model):
+    test_model.main(input, model)
 
 if __name__ == "__main__":
     cli()
