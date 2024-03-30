@@ -6,17 +6,21 @@ import sys
 from . import face_recognition
 
 class MemoryGame:
-    def __init__(self, input, model, images):
+    def __init__(self, input, model, images, music):
         pygame.init()
 
         self.images = images
         self.model = model
         self.input = input
+        self.music = music
         
         # Time variables
         self.hide_time = 1000
         self.pic_display_time = 2000
         self.finish_time = 2000
+        self.startmusic_time = 30000
+        self.playmusic_time = 20000
+        self.fading_time = 2000
 
         # Game variables
         self.gameWidth = 840
@@ -40,12 +44,15 @@ class MemoryGame:
         pygame.display.set_caption('Memory Game')
       
         # Load the background image
-        self.bgImage = cv2.imread('Background.png')
-        self.bgImage = cv2.resize(self.bgImage, (self.gameWidth, self.gameHeight))
-        self.bgImage = cv2.rotate(self.bgImage, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        self.bgImage = cv2.cvtColor(self.bgImage, cv2.COLOR_BGR2RGB)
-        self.bgImageSurf = pygame.surfarray.make_surface(self.bgImage)
-        self.bgImageRect = self.bgImageSurf.get_rect()
+        self.bgImage = pygame.image.load('Background.png')
+        self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
+        self.bgImageRect = self.bgImage.get_rect()
+        #self.bgImage = cv2.imread('Background.png')
+        #self.bgImage = cv2.resize(self.bgImage, (self.gameWidth, self.gameHeight))
+        #self.bgImage = cv2.rotate(self.bgImage, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        #self.bgImage = cv2.cvtColor(self.bgImage, cv2.COLOR_BGR2RGB)
+        #self.bgImageSurf = pygame.surfarray.make_surface(self.bgImage)
+        #self.bgImageRect = self.bgImageSurf.get_rect()
 
         # Create list of Memory Pictures
         self.memoryPictures = images
@@ -60,12 +67,15 @@ class MemoryGame:
         self.memPicsRect = []
         self.hiddenImages = []
         for item in self.memoryPictures:
-            picture = cv2.imread(item)
-            picture = cv2.resize(picture, (self.picSize, self.picSize))
-            picture = cv2.rotate(picture, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            picture = cv2.cvtColor(picture, cv2.COLOR_BGR2RGB)
-            picture_surf = pygame.surfarray.make_surface(picture)
-            self.memPics.append(picture_surf)
+            picture = pygame.image.load(item)
+            picture = pygame.transform.scale(picture, (self.picSize, self.picSize))
+            self.memPics.append(picture)
+            #picture = cv2.imread(item)
+            #picture = cv2.resize(picture, (self.picSize, self.picSize))
+            #picture = cv2.rotate(picture, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            #picture = cv2.cvtColor(picture, cv2.COLOR_BGR2RGB)
+            #picture_surf = pygame.surfarray.make_surface(picture)
+            #self.memPics.append(picture_surf)
 
         for i in range(self.gameRows):
             for j in range(self.gameColumns):
@@ -81,7 +91,7 @@ class MemoryGame:
     def play(self):
         gameLoop = True
         while gameLoop:
-            self.screen.blit(self.bgImageSurf, self.bgImageRect)
+            self.screen.blit(self.bgImage, self.bgImageRect)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -107,6 +117,14 @@ class MemoryGame:
 
             if self.selection1 is not None and self.selection2 is not None:
                 if self.memoryPictures[self.selection1] == self.memoryPictures[self.selection2]:
+
+                    if self.memoryPictures[self.selection1] == "music":
+                        random_music_file = random.choice(self.music)
+                        pygame.mixer.music.load(random_music_file)
+                        pygame.mixer.music.play(start=self.startmusic_time, fade_ms=self.fading_time)
+                        pygame.time.wait(self.playmusic_time)
+                        pygame.mixer.music.fadeout(self.fading_time)
+
                     pygame.time.wait(self.hide_time)
                     self.screen.fill(self.WHITE)
                     # Convert Pygame surface to numpy array
@@ -123,6 +141,7 @@ class MemoryGame:
                     self.screen.blit(scaled_surf, img_rect)
                     pygame.display.update()
                     pygame.time.wait(self.pic_display_time)
+
                 else:
                     pygame.time.wait(self.hide_time)
                     self.hiddenImages[self.selection1] = False
@@ -140,7 +159,7 @@ class MemoryGame:
         pygame.quit()
 
     def show_win_message(self):
-        self.screen.blit(self.bgImageSurf, self.bgImageRect)
+        self.screen.blit(self.bgImage, self.bgImageRect)
         pygame.display.flip()
         pygame.time.wait(500)
         rect_width = 400
@@ -156,16 +175,20 @@ class MemoryGame:
         pygame.time.wait(self.finish_time)
         face_recognition.main(self.input, self.model, self.images)
 
-def main(input, model, image_folder):
+def main(input, model, image_folder, music_folder):
     if isinstance(image_folder, str):
         images = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith(".jpeg") or file.endswith(".png")]
-    else :
+    else:
         images = image_folder
-    game = MemoryGame(input, model, images)
+
+    if isinstance(music_folder, str):
+        music = [os.path.join(music_folder, file) for file in os.listdir(music_folder) if file.endswith(".wav") or file.endswith(".mp3")]
+    else:
+        music = music_folder
+
+    game = MemoryGame(input, model, images, music)
     game.play()
 
 if __name__ == "__main__":
     main()
-   
 
-    
