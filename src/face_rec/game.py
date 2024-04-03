@@ -3,6 +3,7 @@ import os
 import random
 import cv2
 import sys
+from pathlib import Path
 from . import face_recognition
 
 class MemoryGame:
@@ -117,11 +118,13 @@ class MemoryGame:
 
             if self.selection1 is not None and self.selection2 is not None:
                 if self.memoryPictures[self.selection1] == self.memoryPictures[self.selection2]:
+                    print(Path(self.memoryPictures[self.selection1]).stem)
 
-                    if self.memoryPictures[self.selection1] == "music":
+                    if Path(self.memoryPictures[self.selection1]).stem == "music":
+                        print("ciao")
                         random_music_file = random.choice(self.music)
                         pygame.mixer.music.load(random_music_file)
-                        pygame.mixer.music.play(start=self.startmusic_time, fade_ms=self.fading_time)
+                        pygame.mixer.music.play(start=0, fade_ms=20)
                         pygame.time.wait(self.playmusic_time)
                         pygame.mixer.music.fadeout(self.fading_time)
 
