@@ -70,11 +70,11 @@ def main(input, model, image_folder):
             #text_to_speak = "Good morning {id}!! It's time to wake up. Today will be a beatiful day and it's time to shyne!"
             bg_sound.set_volume(0.2)
             text_to_speak_intro = f"Buongiorno {id}. Benvenuto nel giardino parlante!!"
-            text_to_speak = f"Come stai oggi {id}"
+            text_to_speak = f"Proprio una bella giornata oggi!"
             speak(text_to_speak_intro)
             time.sleep(1)
             speak(text_to_speak)
-            bg_sound.set_volume(1)
+            pygame.mixer.music.set_volume(1)
             time.sleep(2)
             cam.release()
             cv2.destroyAllWindows()
