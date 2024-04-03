@@ -7,7 +7,7 @@ import random
 import pygame
 import datetime
 
-def main(input, model, image_folder):
+def main(input, model, image_folder, music_folder):
     # Play backgroung music
     pygame.init()
     bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3')]
@@ -78,7 +78,7 @@ def main(input, model, image_folder):
             time.sleep(2)
             cam.release()
             cv2.destroyAllWindows()
-            game.main(input, model, image_folder)
+            game.main(input, model, image_folder, music_folder, bg_sound)
         
         if datetime.datetime.now() >= endTime:
             bg_sound.set_volume(0.2)
@@ -86,7 +86,7 @@ def main(input, model, image_folder):
             speak(text_to_speak_intro)
             cam.release()
             cv2.destroyAllWindows()
-            game.main(input, model, image_folder)
+            game.main(input, model, image_folder, music_folder, bg_sound)
             
         
         if cv2.waitKey(1) & 0xFF == ord('q'):

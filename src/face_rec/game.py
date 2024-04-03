@@ -4,16 +4,17 @@ import random
 import cv2
 import sys
 from pathlib import Path
-from . import face_recognition
+from . import application
 
 class MemoryGame:
-    def __init__(self, input, model, images, music):
+    def __init__(self, input, model, images, music, bg_sound):
         pygame.init()
 
         self.images = images
         self.model = model
         self.input = input
         self.music = music
+        self.bg_sound = bg_sound
         
         # Time variables
         self.hide_time = 1000
@@ -121,12 +122,17 @@ class MemoryGame:
                     print(Path(self.memoryPictures[self.selection1]).stem)
 
                     if Path(self.memoryPictures[self.selection1]).stem == "music":
-                        print("ciao")
+                        self.bg_sound.stop()
+                        print(self.bg_sound)
                         random_music_file = random.choice(self.music)
                         pygame.mixer.music.load(random_music_file)
-                        pygame.mixer.music.play(start=0, fade_ms=20)
-                        pygame.time.wait(self.playmusic_time)
+                        sound = pygame.mixer.Sound(random_music_file)
+                        length = sound.get_length()
+                        print(length)
+                        pygame.mixer.music.play()
+                        pygame.time.wait(int(length / 3) * 1000)
                         pygame.mixer.music.fadeout(self.fading_time)
+                        self.bg_sound.play()
 
                     pygame.time.wait(self.hide_time)
                     self.screen.fill(self.WHITE)
@@ -171,25 +177,23 @@ class MemoryGame:
         rect_y = (self.gameHeight - rect_height) // 2
         pygame.draw.rect(self.screen, self.WHITE, (rect_x, rect_y, rect_width, rect_height))
         font = pygame.font.SysFont(None, 40)
-        text = font.render("Congrats! You won!", True, self.BLACK)
+        text = font.render("Ottimo! Hai completato il gioco!", True, self.BLACK)
         text_rect = text.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
         self.screen.blit(text, text_rect)
         pygame.display.update()
         pygame.time.wait(self.finish_time)
-        face_recognition.main(self.input, self.model, self.images)
+        application.main(self.input, self.model, self.images, self.music)
 
-def main(input, model, image_folder, music_folder):
-    if isinstance(image_folder, str):
-        images = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith(".jpeg") or file.endswith(".png")]
-    else:
-        images = image_folder
+def main(input, model, image_folder, music_folder, bg_sound):
+    
+    images = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith(".jpeg") or file.endswith(".png")] if isinstance(image_folder, str) else image_folder
 
     if isinstance(music_folder, str):
         music = [os.path.join(music_folder, file) for file in os.listdir(music_folder) if file.endswith(".wav") or file.endswith(".mp3")]
     else:
         music = music_folder
 
-    game = MemoryGame(input, model, images, music)
+    game = MemoryGame(input, model, images, music, bg_sound)
     game.play()
 
 if __name__ == "__main__":

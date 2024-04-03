@@ -26,8 +26,9 @@ def train(path, model):
 @click.option("-i", "--input", help="Input video", default=0, required=False)
 @click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
 @click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
-def application(input, model, image_folder):
-    face_recognition.main(input, model, image_folder)
+@click.option("-t", "--music_folder", help="Input folder with music for memory", default = "./music")
+def application(input, model, image_folder, music_folder):
+    face_recognition.main(input, model, image_folder, music_folder)
 
 @cli.command(help="Command to test the detection on single image")
 @click.option("-i", "--input", help="Input image", default="dataset/Validation/User.15.9.png", required=False)
@@ -35,12 +36,5 @@ def application(input, model, image_folder):
 def testmodel(input, model):
     test_model.main(input, model)
 
-@cli.command(help="Command to start the game")
-@click.option("-i", "--input", help="Input video", default=0, required=False)
-@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
-@click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
-@click.option("-t", "--music_folder", help="Input folder with music for memory", default = "./music")
-def memorygame(input, model, image_folder, music_folder):
-    game.main(input, model, image_folder, music_folder)
 if __name__ == "__main__":
     cli()

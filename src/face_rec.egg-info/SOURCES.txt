@@ -1,5 +1,6 @@
 README.md
 setup.py
+src/face_rec/application.py
 src/face_rec/cli.py
 src/face_rec/dataset_face.py
 src/face_rec/face_recognition.py
