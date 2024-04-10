@@ -41,10 +41,11 @@ def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT):
     ret, frame = video_capture.read()
     if ret:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert frame colors from BGR to RGB
-        frame = cv2.resize(frame, (int(SCREEN_WIDTH/4), int(SCREEN_HEIGHT/4)))
+        frame = cv2.resize(frame, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)))
 
         frame = pygame.image.frombuffer(frame.tostring(), frame.shape[1::-1], "RGB")
-        screen.blit(frame, (SCREEN_WIDTH - frame.get_width(), SCREEN_HEIGHT - frame.get_height()))
+        #screen.blit(frame, (SCREEN_WIDTH - frame.get_width(), SCREEN_HEIGHT - frame.get_height()))
+        screen.blit(frame, (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
         pygame.display.flip()
         pygame.time.delay(60) 
@@ -132,24 +133,36 @@ def speak(text):
 
 def main(avatar, model, images, music) :
     pygame.init()
-    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3')], pygame.mixer.Sound('background_music.wav')]
+    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3'), pygame.mixer.Sound('background_music.wav')]
     bg_sound = random.choice(bg_sounds)
     bg_sound.play()
     
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
+    
     WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+    GRAY = (200, 200, 200)
+    RED = (255, 0, 0)
+    GREEN = (0, 255, 0)
+    BLUE = (0, 0, 255)
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("MEMORY GAME")
-    screen.fill(WHITE)
+    
+    background_images = [pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)),
+                     pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(),  (SCREEN_WIDTH, SCREEN_HEIGHT))]
+    background_index = 0
+    background_alpha = 255  # Initial alpha value for fading
+    background_scroll_x = 0
+    background_scroll_speed = 2
 
     running = True
+   
+    scrolling_enabled = True
 
     video_path = avatar 
     video_capture = cv2.VideoCapture(video_path)
-
-    cam = cv2.VideoCapture(0)
 
     bubbles = [Bubble(SCREEN_WIDTH, SCREEN_HEIGHT) for _ in range(20)]
 
@@ -157,14 +170,32 @@ def main(avatar, model, images, music) :
     button_width = 200
     button_height = 50
     button_x = (SCREEN_WIDTH - button_width) // 4
-    button_y = (SCREEN_HEIGHT - button_height) // 2
+    button_y = (SCREEN_HEIGHT - button_height) - 100
 
     button_width_1 = 200
     button_height_1 = 50
     button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4
 
     game_started = False
+  
     while running:
+        screen.fill(WHITE)
+        screen.blit(background_images[background_index], (background_scroll_x, 0))
+        screen.blit(background_images[1 - background_index], (background_scroll_x + SCREEN_WIDTH, 0))
+        
+        fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(background_alpha)
+        screen.blit(fade_surface, (0, 0))
+
+        if scrolling_enabled:
+            background_scroll_x -= background_scroll_speed
+            if background_scroll_x <= -SCREEN_WIDTH:
+                background_scroll_x = 0
+
+        if background_alpha > 0:
+            background_alpha -= 2 
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -175,21 +206,13 @@ def main(avatar, model, images, music) :
                 if button_x_1 <= mouse_x <= button_x_1 + button_width_1 and button_y <= mouse_y <= button_y + button_height_1:
                     game_started = True
         
-        display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT)  
-        pygame.draw.rect(screen, WHITE, ((0,0, SCREEN_WIDTH-200, SCREEN_HEIGHT-150)))
-        pygame.draw.rect(screen, WHITE, ((SCREEN_WIDTH-200,0, SCREEN_WIDTH, SCREEN_HEIGHT-150)))
-        pygame.draw.rect(screen, WHITE, ((0,SCREEN_HEIGHT-150, SCREEN_WIDTH-200, SCREEN_HEIGHT)))
-        for bubble in bubbles:
-            bubble.move()
-            bubble.draw(screen)
-        
-        pygame.draw.ellipse(screen, (0, 0, 0), (button_x_1, button_y, button_width_1, button_height_1))
+        pygame.draw.rect(screen, GRAY, (button_x_1, button_y, button_width_1, button_height_1))
         font = pygame.font.Font(None, 36)
         text1 = font.render("Ricordiamo", True, (255, 255, 255))
         text_rect = text1.get_rect(center=(button_x_1 + button_width_1 // 2, button_y + button_height_1 // 2))
         screen.blit(text1, text_rect)
 
-        pygame.draw.ellipse(screen, (0, 0, 0), (button_x, button_y, button_width, button_height))
+        pygame.draw.rect(screen, GRAY, (button_x, button_y, button_width, button_height))
         font = pygame.font.Font(None, 36)
         text = font.render("Giochiamo", True, (255, 255, 255))
         text_rect = text.get_rect(center=(button_x + button_width // 2, button_y + button_height // 2))
@@ -200,9 +223,16 @@ def main(avatar, model, images, music) :
         # Control frame rate
         pygame.time.Clock().tick(60)
         if game_started :
-            detect_face(cam, model, bg_sound, images, music)
-
-
+            pygame.draw.rect(screen, WHITE, ((0,0, SCREEN_WIDTH, SCREEN_HEIGHT)))
+            cam = cv2.VideoCapture(0)
+            for bubble in bubbles:
+                bubble.move()
+                bubble.draw(screen)
+            display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT) 
+            detect_face(cam, model, bg_sound, images, music) 
+        
+        
+            
     # Release video capture and quit Pygame
     video_capture.release()
     pygame.quit()
