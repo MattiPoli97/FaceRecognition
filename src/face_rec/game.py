@@ -4,8 +4,24 @@ import random
 import cv2
 import sys
 from pathlib import Path
-from . import application
+from . import interface
 
+class Button:
+    def __init__(self, x, y, width, height, color, text=''):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = color
+        self.text = text
+        self.font = pygame.font.Font(None, 32)
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+        text_surface = self.font.render(self.text, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        surface.blit(text_surface, text_rect)
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
+    
 class MemoryGame:
     def __init__(self, input, model, images, music, bg_sound):
         pygame.init()
@@ -44,7 +60,7 @@ class MemoryGame:
         # Initialize the screen
         self.screen = pygame.display.set_mode((self.gameWidth, self.gameHeight))
         pygame.display.set_caption('Memory Game')
-      
+        
         # Load the background image
         self.bgImage = pygame.image.load('Background.png')
         self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
@@ -92,8 +108,11 @@ class MemoryGame:
         
     def play(self):
         gameLoop = True
+        button = Button(20, 20, 50, 25, (255, 0, 0), "X")
+       
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
+            button.draw(self.screen)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -109,7 +128,9 @@ class MemoryGame:
                                 else:
                                     self.selection1 = index
                                     self.hiddenImages[self.selection1] = True
-
+                    if button.is_clicked(pygame.mouse.get_pos()):
+                        gameLoop = False
+                    
             for i in range(len(self.memoryPictures)):
                 if self.hiddenImages[i]:
                     self.screen.blit(self.memPics[i], self.memPicsRect[i].topleft)
@@ -166,6 +187,7 @@ class MemoryGame:
             pygame.display.update()
 
         pygame.quit()
+        sys.exit()
 
     def show_win_message(self):
         self.screen.blit(self.bgImage, self.bgImageRect)
@@ -182,7 +204,7 @@ class MemoryGame:
         self.screen.blit(text, text_rect)
         pygame.display.update()
         pygame.time.wait(self.finish_time)
-        application.main(self.input, self.model, self.images, self.music)
+        interface.main("./avatar.mp4")
 
 def main(input, model, image_folder, music_folder, bg_sound):
     

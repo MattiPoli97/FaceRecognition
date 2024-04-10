@@ -1,12 +1,17 @@
 from . import dataset_face
-from . import face_recognition
 from . import model_creation
 from . import test_model
+from . import interface
 import click
 
 @click.group()
 def cli():
     pass
+
+@cli.command(help="Start application")
+@click.option("-i", "--input", help="Avatar input", default="./avatar.mp4", required=False)
+def create_interface(input):
+    interface.main(input)
 
 @cli.command(help="Command for dataset Creation")
 @click.option("-i", "--input", help="Input video", default=0, required=False)
@@ -21,14 +26,6 @@ def createdataset(input, width, height, identifier):
 @click.option("-m", "--model", help="Path to store the model", default='./trainer1.yml', required=False)
 def train(path, model):
     model_creation.main(path, model)
-
-@cli.command(help="Command to start the application: recogntion and game")
-@click.option("-i", "--input", help="Input video", default=0, required=False)
-@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
-@click.option("-f", "--image_folder", help="Input folder with images for memory", default = "./images")
-@click.option("-t", "--music_folder", help="Input folder with music for memory", default = "./music")
-def application(input, model, image_folder, music_folder):
-    face_recognition.main(input, model, image_folder, music_folder)
 
 @cli.command(help="Command to test the detection on single image")
 @click.option("-i", "--input", help="Input image", default="dataset/Validation/User.15.9.png", required=False)
