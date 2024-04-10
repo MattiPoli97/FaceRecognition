@@ -109,29 +109,30 @@ class MemoryGame:
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
     def multiple_choice(self):
-        self.screen.blit(self.bgImage, self.bgImageRect)
-        rect_width = 300
-        rect_height = 200
-        question_x = (self.gameWidth - rect_width) // 2
-        question_y = 30
-        pygame.draw.rect(self.screen, self.WHITE, (question_x, question_y, rect_width, rect_height))
-        font = pygame.font.SysFont(None, 24)
-        text = font.render("Domanda a risposta multipla", True, self.BLACK)
-        text_rect = text.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
-        self.screen.blit(text, text_rect)
 
-        for i in range(2):
-            for j in range(2):
-                option_x = self.leftMargin + j * (rect_width + self.padding)
-                option_y = self.topMargin + i * (rect_height + self.padding)
-                pygame.draw.rect(self.screen, self.WHITE, (option_x, option_y, rect_width, rect_height))
+        rect_width = 300
+        rect_height = 100
+        question_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        question_y = (self.gameHeight - rect_height) // 8
+        question = Button(question_x, question_y, rect_width, rect_height, (0, 0, 0), "Domanda")
+        question.draw(self.screen)
+
+        option1_y = (self.gameHeight - rect_height) * 3 // 8
+        option1 = Button(question_x, option1_y , rect_width, rect_height, (0, 0, 0), "Opzione 1")
+        option2_y = (self.gameHeight - rect_height) * 5 // 8
+        option2 = Button(question_x, option2_y, rect_width, rect_height, (0, 0, 0), "Opzione 2")
+        option3_y = (self.gameHeight - rect_height) * 7 // 8
+        option3 = Button(question_x, option3_y, rect_width, rect_height, (0, 0, 0), "Opzione 3")
+        option1.draw(self.screen)
+        option2.draw(self.screen)
+        option3.draw(self.screen)
 
         pygame.display.update()
 
     def play(self):
         gameLoop = True
         button = Button(20, 20, 50, 25, (255, 0, 0), "X")
-        goon_button = Button(700, 540, 100, 50, (0, 255, 0), "Avanti")
+        goon_button = Button(50, 540, 100, 50, (0, 255, 0), "Avanti")
        
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
@@ -177,11 +178,11 @@ class MemoryGame:
 
                     start_time = time.time()
 
-                    #self.multiple_choice()
+                    self.multiple_choice()
 
                     # if proverbio avatar che muove la bocca e sotto frase con metà proverbio presa da Path(self.memoryPictures[self.selection1]).stem
                     # if musica ... e di fianco avatar che si muove
-                    # if tutto il resto no avatar, multiple choice
+                    # if tutto il resto no avatar, multiple choice dove prendo il nome dell'immagine e altre 2 opzioni random da una lista
 
                     if Path(self.memoryPictures[self.selection1]).stem == "music":
                         self.bg_sound.stop()
