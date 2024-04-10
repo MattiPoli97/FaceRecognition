@@ -178,13 +178,14 @@ class MemoryGame:
 
                     start_time = time.time()
 
-                    self.multiple_choice()
+                    print(Path(self.memoryPictures[self.selection1]).stem)
 
-                    # if proverbio avatar che muove la bocca e sotto frase con metà proverbio presa da Path(self.memoryPictures[self.selection1]).stem
-                    # if musica ... e di fianco avatar che si muove
-                    # if tutto il resto no avatar, multiple choice dove prendo il nome dell'immagine e altre 2 opzioni random da una lista
-
+                    # 3 options: music, proverb or multiple choice question
                     if Path(self.memoryPictures[self.selection1]).stem == "music":
+
+                        # display video of avatar
+
+                        # play the music
                         self.bg_sound.stop()
                         random_music_file = random.choice(self.music)
                         pygame.mixer.music.load(random_music_file)
@@ -202,8 +203,22 @@ class MemoryGame:
 
                         pygame.mixer.music.fadeout(self.fading_time)
                         self.bg_sound.play()
+                    elif Path(self.memoryPictures[self.selection1]).stem == "Nuvole a pecorelle, acqua a catinelle":
+                        # proverbio
+                        rect_width = 300
+                        rect_height = 100
+                        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+                        proverb_y = (self.gameHeight - rect_height) // 4
+                        question = Button(proverb_x, proverb_y, rect_width, rect_height, (0, 0, 0), "Inizio del proverbio va qui")
+                        question.draw(self.screen)
 
-                    print(start_time)
+                        # display video of avatar?
+
+                        pygame.display.update()
+                    else:
+                        self.multiple_choice()
+                        # prendo il nome dell'immagine e altre 2 opzioni random da una lista
+
                     while enlarged_image and (time.time() < start_time + self.max_time):
 
                         for event in pygame.event.get():
