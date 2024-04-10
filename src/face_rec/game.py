@@ -244,7 +244,7 @@ class MemoryGame:
         self.screen.blit(text, text_rect)
         pygame.display.update()
         pygame.time.wait(self.finish_time)
-        interface.main("./avatar.mp4")
+        interface.main("./avatar.mp4", self.model, self.images, self.music)
 
 def main(input, model, image_folder, music_folder, bg_sound):
     

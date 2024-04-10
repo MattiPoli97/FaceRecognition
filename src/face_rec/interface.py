@@ -128,11 +128,11 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder):
 
 def speak(text):
     #subprocess.call(['say', '-v', 'Reed', text])
-    subprocess.call(['say','-v', 'Alice', text], shell=True)
+    subprocess.call(['say','-v', 'Alice', text])
 
-def main(avatar) :
+def main(avatar, model, images, music) :
     pygame.init()
-    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3'), pygame.mixer.Sound('background_music.wav')]
+    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3')], pygame.mixer.Sound('background_music.wav')]
     bg_sound = random.choice(bg_sounds)
     bg_sound.play()
     
@@ -141,7 +141,7 @@ def main(avatar) :
     WHITE = (255, 255, 255)
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("TSINGTAO")
+    pygame.display.set_caption("MEMORY GAME")
     screen.fill(WHITE)
 
     running = True
@@ -200,7 +200,7 @@ def main(avatar) :
         # Control frame rate
         pygame.time.Clock().tick(60)
         if game_started :
-            detect_face(cam, './trainer.yml', bg_sound, "./images", "./music")
+            detect_face(cam, model, bg_sound, images, music)
 
 
     # Release video capture and quit Pygame

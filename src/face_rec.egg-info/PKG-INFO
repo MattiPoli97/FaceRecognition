@@ -1,7 +1,15 @@
 Metadata-Version: 2.1
-Name: face-rec
+Name: face_rec
 Version: 1.0
 Summary: Face Recognition toolkit
 Home-page: 
 Author: 
 Author-email: 
+Requires-Dist: numpy
+Requires-Dist: opencv-contrib-python
+Requires-Dist: opencv-python
+Requires-Dist: pathlib
+Requires-Dist: setuptools
+Requires-Dist: pillow
+Requires-Dist: click
+Requires-Dist: pygame

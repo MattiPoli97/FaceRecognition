@@ -10,8 +10,11 @@ def cli():
 
 @cli.command(help="Start application")
 @click.option("-i", "--input", help="Avatar input", default="./avatar.mp4", required=False)
-def create_interface(input):
-    interface.main(input)
+@click.option("-m", "--model", help="Path of detection model", default='./trainer.yml', required=False)
+@click.option("-d", "--image", help="Images container path", default='./Immagini Proverbi', required=False)
+@click.option("-f", "--music", help="Music container path", default='./music', required=False)
+def create_interface(input, model, image, music):
+    interface.main(input, model, image, music)
 
 @cli.command(help="Command for dataset Creation")
 @click.option("-i", "--input", help="Input video", default=0, required=False)
