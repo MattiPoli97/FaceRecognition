@@ -3,6 +3,7 @@ import os
 import random
 import cv2
 import sys
+import time
 from pathlib import Path
 from . import interface
 
@@ -39,12 +40,13 @@ class MemoryGame:
         self.startmusic_time = 30000
         self.playmusic_time = 20000
         self.fading_time = 2000
+        self.max_time = 5
 
         # Game variables
         self.gameWidth = 840
         self.gameHeight = 640
         self.picSize = 200
-        self.enlarged_size = 500
+        self.enlarged_size = self.gameWidth // 2
         self.gameColumns = 3
         self.gameRows = 2
         self.padding = 20
@@ -105,14 +107,37 @@ class MemoryGame:
         self.button_rect = pygame.Rect(20, 20, 100, 50)
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
-        
+
+    def multiple_choice(self):
+        self.screen.blit(self.bgImage, self.bgImageRect)
+        rect_width = 300
+        rect_height = 200
+        question_x = (self.gameWidth - rect_width) // 2
+        question_y = 30
+        pygame.draw.rect(self.screen, self.WHITE, (question_x, question_y, rect_width, rect_height))
+        font = pygame.font.SysFont(None, 24)
+        text = font.render("Domanda a risposta multipla", True, self.BLACK)
+        text_rect = text.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
+        self.screen.blit(text, text_rect)
+
+        for i in range(2):
+            for j in range(2):
+                option_x = self.leftMargin + j * (rect_width + self.padding)
+                option_y = self.topMargin + i * (rect_height + self.padding)
+                pygame.draw.rect(self.screen, self.WHITE, (option_x, option_y, rect_width, rect_height))
+
+        pygame.display.update()
+
     def play(self):
         gameLoop = True
         button = Button(20, 20, 50, 25, (255, 0, 0), "X")
+        goon_button = Button(700, 540, 100, 50, (0, 255, 0), "Avanti")
        
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
             button.draw(self.screen)
+
+            enlarged_image = True
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -130,7 +155,7 @@ class MemoryGame:
                                     self.hiddenImages[self.selection1] = True
                     if button.is_clicked(pygame.mouse.get_pos()):
                         gameLoop = False
-                    
+
             for i in range(len(self.memoryPictures)):
                 if self.hiddenImages[i]:
                     self.screen.blit(self.memPics[i], self.memPicsRect[i].topleft)
@@ -140,37 +165,51 @@ class MemoryGame:
 
             if self.selection1 is not None and self.selection2 is not None:
                 if self.memoryPictures[self.selection1] == self.memoryPictures[self.selection2]:
-                    print(Path(self.memoryPictures[self.selection1]).stem)
+
+                    pygame.time.wait(self.hide_time)
+                    self.screen.fill(self.WHITE)
+                    enlarged_picture = pygame.image.load(self.memoryPictures[self.selection1])
+                    enlarged_picture = pygame.transform.scale(enlarged_picture, (self.enlarged_size, self.enlarged_size))
+                    img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4 + 50, self.gameHeight // 2))
+                    self.screen.blit(enlarged_picture, img_rect)
+                    goon_button.draw(self.screen)
+                    pygame.display.update()
+
+                    start_time = time.time()
+
+                    #self.multiple_choice()
+
+                    # if proverbio avatar che muove la bocca e sotto frase con metà proverbio presa da Path(self.memoryPictures[self.selection1]).stem
+                    # if musica ... e di fianco avatar che si muove
+                    # if tutto il resto no avatar, multiple choice
 
                     if Path(self.memoryPictures[self.selection1]).stem == "music":
                         self.bg_sound.stop()
-                        print(self.bg_sound)
                         random_music_file = random.choice(self.music)
                         pygame.mixer.music.load(random_music_file)
                         sound = pygame.mixer.Sound(random_music_file)
                         length = sound.get_length()
-                        print(length)
-                        pygame.mixer.music.play()
-                        pygame.time.wait(int(length / 3) * 1000)
+                        pygame.mixer.music.play(start=25, fade_ms=self.fading_time)
+
+                        while enlarged_image and (time.time() < start_time + self.max_time):
+                            for event in pygame.event.get():
+                                if event.type == pygame.MOUSEBUTTONDOWN:
+                                    if goon_button.is_clicked(pygame.mouse.get_pos()):
+                                        enlarged_image = False
+                                        pygame.mixer.music.fadeout(self.fading_time)
+                                        self.bg_sound.play()
+
                         pygame.mixer.music.fadeout(self.fading_time)
                         self.bg_sound.play()
 
-                    pygame.time.wait(self.hide_time)
-                    self.screen.fill(self.WHITE)
-                    # Convert Pygame surface to numpy array
-                    img_array = pygame.surfarray.array3d(self.memPics[self.selection1])
-                    # Convert RGB to BGR (OpenCV uses BGR)
-                    img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
-                    # Resize using OpenCV
-                    scaled_img = cv2.resize(img_array, (self.enlarged_size, self.enlarged_size))
-                    # Convert back to RGB
-                    scaled_img = cv2.cvtColor(scaled_img, cv2.COLOR_BGR2RGB)
-                    # Convert numpy array back to Pygame surface
-                    scaled_surf = pygame.surfarray.make_surface(scaled_img)
-                    img_rect = scaled_surf.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
-                    self.screen.blit(scaled_surf, img_rect)
-                    pygame.display.update()
-                    pygame.time.wait(self.pic_display_time)
+                    print(start_time)
+                    while enlarged_image and (time.time() < start_time + self.max_time):
+
+                        for event in pygame.event.get():
+                            if event.type == pygame.MOUSEBUTTONDOWN:
+                                if goon_button.is_clicked(pygame.mouse.get_pos()):
+                                    enlarged_image = False
+
 
                 else:
                     pygame.time.wait(self.hide_time)

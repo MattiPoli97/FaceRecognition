@@ -128,11 +128,11 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder):
 
 def speak(text):
     #subprocess.call(['say', '-v', 'Reed', text])
-    subprocess.call(['say','-v', 'Alice', text])
+    subprocess.call(['say','-v', 'Alice', text], shell=True)
 
 def main(avatar) :
     pygame.init()
-    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3')]
+    bg_sounds = [pygame.mixer.Sound('relaxing-145038.mp3'), pygame.mixer.Sound('motivational.mp3'), pygame.mixer.Sound('background_music.wav')]
     bg_sound = random.choice(bg_sounds)
     bg_sound.play()
     
@@ -200,7 +200,7 @@ def main(avatar) :
         # Control frame rate
         pygame.time.Clock().tick(60)
         if game_started :
-            detect_face(cam, './trainer.yml', bg_sound, "./Immagini Proverbi", "./music")
+            detect_face(cam, './trainer.yml', bg_sound, "./images", "./music")
 
 
     # Release video capture and quit Pygame
