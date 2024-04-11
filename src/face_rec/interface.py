@@ -129,7 +129,7 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder):
 
 def speak(text):
     #subprocess.call(['say', '-v', 'Reed', text])
-    subprocess.call(['say','-v', 'Alice', text])
+    subprocess.call(['say','-v', 'Alice', text], shell=True)
 
 def main(avatar, model, images, music) :
     pygame.init()
