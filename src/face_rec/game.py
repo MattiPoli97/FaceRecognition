@@ -5,6 +5,7 @@ import cv2
 import sys
 import time
 from pathlib import Path
+import pandas as pd
 from . import interface
 
 class Button:
@@ -14,9 +15,9 @@ class Button:
         self.text = text
         self.font = pygame.font.Font(None, 32)
 
-    def draw(self, surface):
+    def draw(self, surface, writing_color):
         pygame.draw.rect(surface, self.color, self.rect)
-        text_surface = self.font.render(self.text, True, (255, 255, 255))
+        text_surface = self.font.render(self.text, True, writing_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         surface.blit(text_surface, text_rect)
 
@@ -40,7 +41,7 @@ class MemoryGame:
         self.startmusic_time = 30000
         self.playmusic_time = 20000
         self.fading_time = 2000
-        self.max_time = 5
+        self.max_time = 60
 
         # Game variables
         self.gameWidth = 840
@@ -67,12 +68,6 @@ class MemoryGame:
         self.bgImage = pygame.image.load('Background.png')
         self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
         self.bgImageRect = self.bgImage.get_rect()
-        #self.bgImage = cv2.imread('Background.png')
-        #self.bgImage = cv2.resize(self.bgImage, (self.gameWidth, self.gameHeight))
-        #self.bgImage = cv2.rotate(self.bgImage, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        #self.bgImage = cv2.cvtColor(self.bgImage, cv2.COLOR_BGR2RGB)
-        #self.bgImageSurf = pygame.surfarray.make_surface(self.bgImage)
-        #self.bgImageRect = self.bgImageSurf.get_rect()
 
         # Create list of Memory Pictures
         self.memoryPictures = images
@@ -90,12 +85,6 @@ class MemoryGame:
             picture = pygame.image.load(item)
             picture = pygame.transform.scale(picture, (self.picSize, self.picSize))
             self.memPics.append(picture)
-            #picture = cv2.imread(item)
-            #picture = cv2.resize(picture, (self.picSize, self.picSize))
-            #picture = cv2.rotate(picture, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            #picture = cv2.cvtColor(picture, cv2.COLOR_BGR2RGB)
-            #picture_surf = pygame.surfarray.make_surface(picture)
-            #self.memPics.append(picture_surf)
 
         for i in range(self.gameRows):
             for j in range(self.gameColumns):
@@ -108,24 +97,39 @@ class MemoryGame:
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
-    def multiple_choice(self):
+    def multiple_choice(self, path):
 
         rect_width = 300
         rect_height = 100
         question_x = (self.gameWidth - rect_width) * 3 // 4 + 100
         question_y = (self.gameHeight - rect_height) // 8
-        question = Button(question_x, question_y, rect_width, rect_height, (0, 0, 0), "Domanda")
-        question.draw(self.screen)
+        question = Button(question_x, question_y, rect_width, rect_height, (255, 255, 255), "Che cosa vedi?")
+        question.draw(self.screen, (0, 0, 0))
+
+        # list of the names of plants for options
+        file_path = "plant_names.xlsx"
+        try:
+            df = pd.read_excel(file_path)
+            plants_column = df['Plants']
+            plant_names = plants_column.tolist()  # Convert the excel file to a list
+        except FileNotFoundError:
+            print("File not found.")
+        except Exception as e:
+            print("Error:", e)
+
+        # what to do next:
+        # extract the right name from this list (using the path?) and 2 other random names
+        # in the options, randomly arrange the 3 names extracted
 
         option1_y = (self.gameHeight - rect_height) * 3 // 8
-        option1 = Button(question_x, option1_y , rect_width, rect_height, (0, 0, 0), "Opzione 1")
+        option1 = Button(question_x, option1_y , rect_width, rect_height, (230, 230, 230), "Opzione 1")
         option2_y = (self.gameHeight - rect_height) * 5 // 8
-        option2 = Button(question_x, option2_y, rect_width, rect_height, (0, 0, 0), "Opzione 2")
+        option2 = Button(question_x, option2_y, rect_width, rect_height, (230, 230, 230), "Opzione 2")
         option3_y = (self.gameHeight - rect_height) * 7 // 8
-        option3 = Button(question_x, option3_y, rect_width, rect_height, (0, 0, 0), "Opzione 3")
-        option1.draw(self.screen)
-        option2.draw(self.screen)
-        option3.draw(self.screen)
+        option3 = Button(question_x, option3_y, rect_width, rect_height, (230, 230, 230), "Opzione 3")
+        option1.draw(self.screen, (0, 0, 0))
+        option2.draw(self.screen, (0, 0, 0))
+        option3.draw(self.screen, (0, 0, 0))
 
         pygame.display.update()
 
@@ -136,7 +140,7 @@ class MemoryGame:
        
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
-            button.draw(self.screen)
+            button.draw(self.screen, (255, 255, 255))
 
             enlarged_image = True
 
@@ -173,15 +177,16 @@ class MemoryGame:
                     enlarged_picture = pygame.transform.scale(enlarged_picture, (self.enlarged_size, self.enlarged_size))
                     img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4 + 50, self.gameHeight // 2))
                     self.screen.blit(enlarged_picture, img_rect)
-                    goon_button.draw(self.screen)
+                    goon_button.draw(self.screen, (255, 255, 255))
                     pygame.display.update()
 
                     start_time = time.time()
 
-                    print(Path(self.memoryPictures[self.selection1]).stem)
+                    image_path = Path(self.memoryPictures[self.selection1]).stem
+                    print(image_path)
 
                     # 3 options: music, proverb or multiple choice question
-                    if Path(self.memoryPictures[self.selection1]).stem == "music":
+                    if image_path == "music":
 
                         # display video of avatar
 
@@ -203,21 +208,30 @@ class MemoryGame:
 
                         pygame.mixer.music.fadeout(self.fading_time)
                         self.bg_sound.play()
-                    elif Path(self.memoryPictures[self.selection1]).stem == "Nuvole a pecorelle, acqua a catinelle":
+
+                    elif len(image_path.split()) > 1:  # se il path ha più di una parola
+
                         # proverbio
                         rect_width = 300
                         rect_height = 100
                         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
-                        proverb_y = (self.gameHeight - rect_height) // 4
-                        question = Button(proverb_x, proverb_y, rect_width, rect_height, (0, 0, 0), "Inizio del proverbio va qui")
-                        question.draw(self.screen)
+                        complete_y = (self.gameHeight - rect_height) // 4
+                        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255), "Completa il proverbio")
+                        complete.draw(self.screen, (0, 0, 0))
 
-                        # display video of avatar?
+                        rect_width = 300
+                        rect_height = 100
+                        proverb_y = (self.gameHeight - rect_height) // 2
+                        words = image_path.split()[:len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
+                        first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
+                        question = Button(proverb_x, proverb_y, rect_width, rect_height, (230, 230, 230), first_part)
+                        question.draw(self.screen, (0, 0, 0))
+
+                        # display video of avatar moving mouth?
 
                         pygame.display.update()
                     else:
-                        self.multiple_choice()
-                        # prendo il nome dell'immagine e altre 2 opzioni random da una lista
+                        self.multiple_choice(image_path)
 
                     while enlarged_image and (time.time() < start_time + self.max_time):
 
@@ -225,7 +239,6 @@ class MemoryGame:
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 if goon_button.is_clicked(pygame.mouse.get_pos()):
                                     enlarged_image = False
-
 
                 else:
                     pygame.time.wait(self.hide_time)
@@ -248,8 +261,8 @@ class MemoryGame:
         self.screen.blit(self.bgImage, self.bgImageRect)
         pygame.display.flip()
         pygame.time.wait(500)
-        rect_width = 400
-        rect_height = 200
+        rect_width = 500
+        rect_height = 150
         rect_x = (self.gameWidth - rect_width) // 2
         rect_y = (self.gameHeight - rect_height) // 2
         pygame.draw.rect(self.screen, self.WHITE, (rect_x, rect_y, rect_width, rect_height))
@@ -272,6 +285,7 @@ def main(input, model, image_folder, music_folder, bg_sound):
 
     game = MemoryGame(input, model, images, music, bg_sound)
     game.play()
+
 
 if __name__ == "__main__":
     main()

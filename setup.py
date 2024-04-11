@@ -20,6 +20,7 @@ setup(
         "pillow",
         "click",
         "pygame",
+        "pandas"
     ],
     entry_points={
         "console_scripts": ["face_rec=face_rec.cli:cli"]
