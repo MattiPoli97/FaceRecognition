@@ -13,3 +13,4 @@ Requires-Dist: setuptools
 Requires-Dist: pillow
 Requires-Dist: click
 Requires-Dist: pygame
+Requires-Dist: pandas

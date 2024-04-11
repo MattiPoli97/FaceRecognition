@@ -5,6 +5,8 @@ import datetime
 import time
 from . import game
 import subprocess
+import platform
+import moviepy.editor as mp
 
 
 class Bubble:
@@ -29,26 +31,22 @@ class Bubble:
         if self.y - self.radius < 0 or self.y + self.radius > self.SCREEN_HEIGHT:
             self.speed_y *= -1
 
-        #Touch video
-        if self.x + self.radius > self.SCREEN_WIDTH - 200 and self.y + self.radius > self.SCREEN_HEIGHT - 150:
-            self.speed_x *= -1
-            self.speed_y *= -1
-
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
-def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT):
+def display_video(video_capture, screen, width, height, position_x, position_y):
     ret, frame = video_capture.read()
+  
     if ret:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert frame colors from BGR to RGB
-        frame = cv2.resize(frame, (int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)))
+        frame = cv2.resize(frame, (int(width), int(height)))
 
         frame = pygame.image.frombuffer(frame.tostring(), frame.shape[1::-1], "RGB")
         #screen.blit(frame, (SCREEN_WIDTH - frame.get_width(), SCREEN_HEIGHT - frame.get_height()))
-        screen.blit(frame, (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        screen.blit(frame, (position_x, position_y - frame.get_height()))
 
         pygame.display.flip()
-        pygame.time.delay(60) 
+        pygame.time.delay(10) 
     else:
         video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Restart video from the beginning
 
@@ -128,8 +126,10 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder):
     cv2.destroyAllWindows()
 
 def speak(text):
-    #subprocess.call(['say', '-v', 'Reed', text])
-    subprocess.call(['say','-v', 'Alice', text], shell=True)
+    if platform.system() == "Windows" :
+        subprocess.call(['say','-v', 'Alice', text], shell=True)
+    else :
+        subprocess.call(['say','-v', 'Alice', text])
 
 def main(avatar, model, images, music) :
     pygame.init()
@@ -149,9 +149,10 @@ def main(avatar, model, images, music) :
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("MEMORY GAME")
-    
+    image_reverse = pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(),(SCREEN_WIDTH, SCREEN_HEIGHT))
+    rotated_scaled_image = pygame.transform.flip(image_reverse, True, False)
     background_images = [pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)),
-                     pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(),  (SCREEN_WIDTH, SCREEN_HEIGHT))]
+                    rotated_scaled_image, pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)), rotated_scaled_image]
     background_index = 0
     background_alpha = 255  # Initial alpha value for fading
     background_scroll_x = 0
@@ -164,7 +165,7 @@ def main(avatar, model, images, music) :
     video_path = avatar 
     video_capture = cv2.VideoCapture(video_path)
 
-    bubbles = [Bubble(SCREEN_WIDTH, SCREEN_HEIGHT) for _ in range(20)]
+    bubbles = [Bubble(SCREEN_WIDTH, SCREEN_HEIGHT) for _ in range(50)]
 
     # Button parameters
     button_width = 200
@@ -222,15 +223,15 @@ def main(avatar, model, images, music) :
 
         # Control frame rate
         pygame.time.Clock().tick(60)
-        if game_started :
+
+        while game_started :
             pygame.draw.rect(screen, WHITE, ((0,0, SCREEN_WIDTH, SCREEN_HEIGHT)))
             cam = cv2.VideoCapture(0)
             for bubble in bubbles:
                 bubble.move()
                 bubble.draw(screen)
-            display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT) 
+            display_video(video_capture, screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH//4, SCREEN_HEIGHT) 
             detect_face(cam, model, bg_sound, images, music) 
-        
         
             
     # Release video capture and quit Pygame

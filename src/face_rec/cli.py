@@ -26,7 +26,7 @@ def createdataset(input, width, height, identifier):
 
 @cli.command(help="Command for Train the detection model")
 @click.option("-p", "--path", help="Path to store the dataset", default='dataset', required=False)
-@click.option("-m", "--model", help="Path to store the model", default='./trainer1.yml', required=False)
+@click.option("-m", "--model", help="Path to store the model", default='./trainer.yml', required=False)
 def train(path, model):
     model_creation.main(path, model)
 

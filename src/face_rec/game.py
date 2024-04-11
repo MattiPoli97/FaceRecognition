@@ -8,6 +8,31 @@ from pathlib import Path
 import pandas as pd
 from . import interface
 
+def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT, pos_x, pos_y):
+    # Inizializza il video capture
+    video_capture = cv2.VideoCapture(video_capture)
+
+    while True:
+        # Leggi il frame successivo
+        ret, frame = video_capture.read()
+
+        # Verifica se il frame è stato letto correttamente
+        if ret:
+            # Converte i colori del frame da BGR a RGB
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            
+            frame = cv2.resize(frame, (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2)))
+            
+            frame = pygame.image.frombuffer(frame.tostring(), frame.shape[1::-1], "RGB")
+            screen.blit(frame, (pos_x, pos_y))
+
+            pygame.display.flip()
+            pygame.time.delay(int(1000 / 30))  # 30 FPS (tempo in millisecondi)
+
+        else:
+            video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            break
 class Button:
     def __init__(self, x, y, width, height, color, text=''):
         self.rect = pygame.Rect(x, y, width, height)
@@ -41,7 +66,7 @@ class MemoryGame:
         self.startmusic_time = 30000
         self.playmusic_time = 20000
         self.fading_time = 2000
-        self.max_time = 60
+        self.max_time = 120
 
         # Game variables
         self.gameWidth = 840
@@ -249,6 +274,9 @@ class MemoryGame:
 
             win = all(self.hiddenImages)
             if win:
+                self.screen.fill(self.WHITE)
+                video_clip = "./avatar/winning_avatar.mp4"
+                display_video(video_clip, self.screen, self.gameWidth, self.gameHeight, 50, self.gameHeight / 4) 
                 self.show_win_message()
                 gameLoop = False
 
@@ -258,19 +286,19 @@ class MemoryGame:
         sys.exit()
 
     def show_win_message(self):
-        self.screen.blit(self.bgImage, self.bgImageRect)
-        pygame.display.flip()
-        pygame.time.wait(500)
-        rect_width = 500
-        rect_height = 150
-        rect_x = (self.gameWidth - rect_width) // 2
-        rect_y = (self.gameHeight - rect_height) // 2
-        pygame.draw.rect(self.screen, self.WHITE, (rect_x, rect_y, rect_width, rect_height))
-        font = pygame.font.SysFont(None, 40)
-        text = font.render("Ottimo! Hai completato il gioco!", True, self.BLACK)
-        text_rect = text.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
-        self.screen.blit(text, text_rect)
-        pygame.display.update()
+        #self.screen.blit(self.bgImage, self.bgImageRect)
+        #pygame.display.flip()
+        #pygame.time.wait(500)
+        #rect_width = 500
+        #rect_height = 150
+        #rect_x = (self.gameWidth - rect_width) // 2
+        #rect_y = (self.gameHeight - rect_height) // 2
+        #pygame.draw.rect(self.screen, self.WHITE, (rect_x, rect_y, rect_width, rect_height))
+        #font = pygame.font.SysFont(None, 40)
+        #text = font.render("Ottimo! Hai completato il gioco!", True, self.BLACK)
+        #text_rect = text.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
+        #self.screen.blit(text, text_rect)
+        #pygame.display.update()
         pygame.time.wait(self.finish_time)
         interface.main("./avatar.mp4", self.model, self.images, self.music)
 
