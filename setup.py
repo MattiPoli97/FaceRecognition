@@ -21,6 +21,7 @@ setup(
         "click",
         "pygame",
         "pandas",
+        "openpyxl",
     ],
     entry_points={
         "console_scripts": ["face_rec=face_rec.cli:cli"]

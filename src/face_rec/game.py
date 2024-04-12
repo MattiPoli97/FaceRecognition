@@ -21,7 +21,6 @@ def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT, pos_x, pos
             # Converte i colori del frame da BGR a RGB
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            
             frame = cv2.resize(frame, (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2)))
             
             frame = pygame.image.frombuffer(frame.tostring(), frame.shape[1::-1], "RGB")
@@ -65,7 +64,7 @@ class MemoryGame:
         self.finish_time = 2000
         self.startmusic_time = 30000
         self.playmusic_time = 20000
-        self.fading_time = 2000
+        self.fading_time = 5000
         self.max_time = 120
 
         # Game variables
@@ -122,7 +121,7 @@ class MemoryGame:
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
-    def multiple_choice(self, path):
+    def multiple_choice(self, stempath):
 
         rect_width = 300
         rect_height = 100
@@ -133,25 +132,25 @@ class MemoryGame:
 
         # list of the names of plants for options
         file_path = "plant_names.xlsx"
-        try:
-            df = pd.read_excel(file_path)
-            plants_column = df['Plants']
-            plant_names = plants_column.tolist()  # Convert the excel file to a list
-        except FileNotFoundError:
-            print("File not found.")
-        except Exception as e:
-            print("Error:", e)
 
-        # what to do next:
+        df = pd.read_excel(file_path)
+        plants_column = df['Plants']
+        plant_names = [plant.capitalize() for plant in plants_column.tolist()]  # Convert the excel file to a list, first letter uppercase
+        stemcapitalized = stempath.capitalize()  # Make sure that stem is uppercase
         # extract the right name from this list (using the path?) and 2 other random names
-        # in the options, randomly arrange the 3 names extracted
+        plant_names.remove(stemcapitalized)
+        random_names = random.sample(plant_names, 2)
+        plant_names.append(stemcapitalized)
+        # randomly arrange the 3 names extracted
+        options = [stemcapitalized] + random_names
+        random.shuffle(options)
 
         option1_y = (self.gameHeight - rect_height) * 3 // 8
-        option1 = Button(question_x, option1_y , rect_width, rect_height, (230, 230, 230), "Opzione 1")
+        option1 = Button(question_x, option1_y, rect_width, rect_height, (230, 230, 230), options[0])
         option2_y = (self.gameHeight - rect_height) * 5 // 8
-        option2 = Button(question_x, option2_y, rect_width, rect_height, (230, 230, 230), "Opzione 2")
+        option2 = Button(question_x, option2_y, rect_width, rect_height, (230, 230, 230), options[1])
         option3_y = (self.gameHeight - rect_height) * 7 // 8
-        option3 = Button(question_x, option3_y, rect_width, rect_height, (230, 230, 230), "Opzione 3")
+        option3 = Button(question_x, option3_y, rect_width, rect_height, (230, 230, 230), options[2])
         option1.draw(self.screen, (0, 0, 0))
         option2.draw(self.screen, (0, 0, 0))
         option3.draw(self.screen, (0, 0, 0))
@@ -222,6 +221,16 @@ class MemoryGame:
                         sound = pygame.mixer.Sound(random_music_file)
                         length = sound.get_length()
                         pygame.mixer.music.play(start=25, fade_ms=self.fading_time)
+                        # lateral message
+                        rect_width = 300
+                        rect_height = 100
+                        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+                        complete_y = (self.gameHeight - rect_height) // 3
+                        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
+                                          "Riconosci questa canzone?")
+                        complete.draw(self.screen, (0, 0, 0))
+
+                        pygame.display.update()
 
                         while enlarged_image and (time.time() < start_time + self.max_time):
                             for event in pygame.event.get():
@@ -236,25 +245,25 @@ class MemoryGame:
 
                     elif len(image_path.split()) > 1:  # se il path ha più di una parola
 
-                        # proverbio
+                        # lateral message
                         rect_width = 300
                         rect_height = 100
                         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
-                        complete_y = (self.gameHeight - rect_height) // 4
-                        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255), "Completa il proverbio")
+                        complete_y = (self.gameHeight - rect_height) // 3
+                        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
+                                          "Completa il proverbio")
                         complete.draw(self.screen, (0, 0, 0))
-
+                        # proverbio
                         rect_width = 300
                         rect_height = 100
-                        proverb_y = (self.gameHeight - rect_height) // 2
+                        proverb_y = (self.gameHeight - rect_height) * 2 // 3
                         words = image_path.split()[:len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
                         first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
                         question = Button(proverb_x, proverb_y, rect_width, rect_height, (230, 230, 230), first_part)
                         question.draw(self.screen, (0, 0, 0))
 
-                        # display video of avatar moving mouth?
-
                         pygame.display.update()
+
                     else:
                         self.multiple_choice(image_path)
 
