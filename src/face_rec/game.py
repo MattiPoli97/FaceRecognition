@@ -32,6 +32,7 @@ def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT, pos_x, pos
         else:
             video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
             break
+
 class Button:
     def __init__(self, x, y, width, height, color, text=''):
         self.rect = pygame.Rect(x, y, width, height)
@@ -47,6 +48,9 @@ class Button:
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
+
+    def is_correct(self, position, index):
+        return True if index == position else False
     
 class MemoryGame:
     def __init__(self, input, model, images, music, bg_sound):
@@ -122,7 +126,7 @@ class MemoryGame:
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
     def multiple_choice(self, stempath):
-
+        multiple_choice =True
         rect_width = 300
         rect_height = 100
         question_x = (self.gameWidth - rect_width) * 3 // 4 + 100
@@ -145,6 +149,12 @@ class MemoryGame:
         options = [stemcapitalized] + random_names
         random.shuffle(options)
 
+        right_index = None
+        for i, option in enumerate(options):
+            if option == stemcapitalized:
+                right_index = i
+        print(right_index)
+
         option1_y = (self.gameHeight - rect_height) * 3 // 8
         option1 = Button(question_x, option1_y, rect_width, rect_height, (230, 230, 230), options[0])
         option2_y = (self.gameHeight - rect_height) * 5 // 8
@@ -154,8 +164,44 @@ class MemoryGame:
         option1.draw(self.screen, (0, 0, 0))
         option2.draw(self.screen, (0, 0, 0))
         option3.draw(self.screen, (0, 0, 0))
-
         pygame.display.update()
+
+        # handle right/wrong answers
+        while multiple_choice:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if option1.is_clicked(pygame.mouse.get_pos()):
+                        if option1.is_correct(0, right_index):
+                            option1.color = (0, 255, 0)
+                            option1.draw(self.screen, (0, 0, 0))
+                            pygame.display.update()
+                            multiple_choice = False
+                        elif not option1.is_correct(0, right_index):
+                            option1.color = (255, 0, 0)
+                            option1.draw(self.screen, (0, 0, 0))
+                            pygame.display.update()
+
+                    if option2.is_clicked(pygame.mouse.get_pos()):
+                        if option2.is_correct(1, right_index):
+                            option2.color = (0, 255, 0)
+                            option2.draw(self.screen, (0, 0, 0))
+                            pygame.display.update()
+                            multiple_choice = False
+                        elif not option2.is_correct(1, right_index):
+                            option2.color = (255, 0, 0)
+                            option2.draw(self.screen, (0, 0, 0))
+                            pygame.display.update()
+
+                    if option3.is_clicked(pygame.mouse.get_pos()):
+                        if option3.is_correct(2, right_index):
+                            option3.color = (255, 0, 0)
+                            option3.draw(self.screen, (0, 0, 0))
+                            pygame.display.update()
+                            multiple_choice = False
+                        elif not option3.is_correct(2, right_index):
+                            option3.color = (0, 255, 0)
+                            option3.draw(self.screen, (0, 0, 0))
+                            pygame.display.update()
 
     def play(self):
         gameLoop = True
@@ -268,11 +314,11 @@ class MemoryGame:
                         self.multiple_choice(image_path)
 
                     while enlarged_image and (time.time() < start_time + self.max_time):
-
                         for event in pygame.event.get():
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 if goon_button.is_clicked(pygame.mouse.get_pos()):
                                     enlarged_image = False
+
 
                 else:
                     pygame.time.wait(self.hide_time)
