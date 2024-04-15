@@ -126,7 +126,7 @@ class MemoryGame:
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
     def multiple_choice(self, stempath):
-        multiple_choice =True
+
         rect_width = 300
         rect_height = 100
         question_x = (self.gameWidth - rect_width) * 3 // 4 + 100
@@ -141,7 +141,7 @@ class MemoryGame:
         plants_column = df['Plants']
         plant_names = [plant.capitalize() for plant in plants_column.tolist()]  # Convert the excel file to a list, first letter uppercase
         stemcapitalized = stempath.capitalize()  # Make sure that stem is uppercase
-        # extract the right name from this list (using the path?) and 2 other random names
+        # extract the right name from this list and 2 other random names
         plant_names.remove(stemcapitalized)
         random_names = random.sample(plant_names, 2)
         plant_names.append(stemcapitalized)
@@ -149,58 +149,33 @@ class MemoryGame:
         options = [stemcapitalized] + random_names
         random.shuffle(options)
 
-        right_index = None
-        for i, option in enumerate(options):
-            if option == stemcapitalized:
-                right_index = i
-        print(right_index)
+        option_buttons = []
+        for i, option_text in enumerate(options):
+            option_y = (self.gameHeight - rect_height) * (2*i + 3) // 8
+            option_button = Button(question_x, option_y, rect_width, rect_height, (230, 230, 230), option_text)
+            option_buttons.append(option_button)
+            option_button.draw(self.screen, (0, 0, 0))
 
-        option1_y = (self.gameHeight - rect_height) * 3 // 8
-        option1 = Button(question_x, option1_y, rect_width, rect_height, (230, 230, 230), options[0])
-        option2_y = (self.gameHeight - rect_height) * 5 // 8
-        option2 = Button(question_x, option2_y, rect_width, rect_height, (230, 230, 230), options[1])
-        option3_y = (self.gameHeight - rect_height) * 7 // 8
-        option3 = Button(question_x, option3_y, rect_width, rect_height, (230, 230, 230), options[2])
-        option1.draw(self.screen, (0, 0, 0))
-        option2.draw(self.screen, (0, 0, 0))
-        option3.draw(self.screen, (0, 0, 0))
+        right_index = options.index(stemcapitalized)
+        correct_answer_given = False
+
         pygame.display.update()
 
         # handle right/wrong answers
-        while multiple_choice:
+        while not correct_answer_given:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if option1.is_clicked(pygame.mouse.get_pos()):
-                        if option1.is_correct(0, right_index):
-                            option1.color = (0, 255, 0)
-                            option1.draw(self.screen, (0, 0, 0))
-                            pygame.display.update()
-                            multiple_choice = False
-                        elif not option1.is_correct(0, right_index):
-                            option1.color = (255, 0, 0)
-                            option1.draw(self.screen, (0, 0, 0))
-                            pygame.display.update()
-
-                    if option2.is_clicked(pygame.mouse.get_pos()):
-                        if option2.is_correct(1, right_index):
-                            option2.color = (0, 255, 0)
-                            option2.draw(self.screen, (0, 0, 0))
-                            pygame.display.update()
-                            multiple_choice = False
-                        elif not option2.is_correct(1, right_index):
-                            option2.color = (255, 0, 0)
-                            option2.draw(self.screen, (0, 0, 0))
-                            pygame.display.update()
-
-                    if option3.is_clicked(pygame.mouse.get_pos()):
-                        if option3.is_correct(2, right_index):
-                            option3.color = (255, 0, 0)
-                            option3.draw(self.screen, (0, 0, 0))
-                            pygame.display.update()
-                            multiple_choice = False
-                        elif not option3.is_correct(2, right_index):
-                            option3.color = (0, 255, 0)
-                            option3.draw(self.screen, (0, 0, 0))
+                    for i, option_button in enumerate(option_buttons):
+                        if option_button.is_clicked(pygame.mouse.get_pos()):
+                            if option_button.is_correct(i, right_index):
+                                option_button.color = (0, 255, 0)
+                                correct_answer_given = True
+                            else:
+                                option_button.color = (255, 0, 0)
+                            option_button.draw(self.screen, (0, 0, 0))
                             pygame.display.update()
 
     def play(self):
