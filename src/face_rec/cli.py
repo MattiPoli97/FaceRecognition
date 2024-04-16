@@ -9,7 +9,7 @@ def cli():
     pass
 
 @cli.command(help="Start application")
-@click.option("-i", "--input", help="Avatar input", default="./avatar.mp4", required=False)
+@click.option("-i", "--input", help="Avatar input", default="./avatar/avatar1.mov", required=False)
 @click.option("-m", "--model", help="Path of detection model", default='./trainer.yml', required=False)
 @click.option("-d", "--image", help="Images container path", default='./Immagini Proverbi', required=False)
 @click.option("-f", "--music", help="Music container path", default='./music', required=False)

@@ -234,7 +234,7 @@ class MemoryGame:
                     if image_path == "music":
 
                         # display video of avatar
-
+                        interface.play_video_from_images("/Users/mattiamagro/Desktop/FaceRecognition/frames_dancing_avatar", "./music/Lorella Cuccarini - La Notte Vola.wav", self.screen, self.gameWidth/2, self.gameHeight/2, True)
                         # play the music
                         self.bg_sound.stop()
                         random_music_file = random.choice(self.music)

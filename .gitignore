@@ -37,7 +37,6 @@ ehthumbs.db
 Thumbs.db
 
 # Large files #
-*.png
 *.jpeg
 *.wav
 venv/
