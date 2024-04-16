@@ -43,37 +43,10 @@ class Button_with_icon:
                     return True
         return False
 
-class Bubble:
-    def __init__(self, screen_width, screen_height):
-        self.radius = random.randint(5, 15)  # Random radius
-        self.x = random.randint(self.radius, screen_width - self.radius)  # Random x-coordinate
-        self.y = random.randint(self.radius, screen_height - self.radius)  # Random y-coordinate
-        self.speed_x = random.uniform(-5, 5)  # Random x-speed
-        self.speed_y = random.uniform(-5, 5)  # Random y-speed
-        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))  # Random color
-        self.SCREEN_WIDTH = 800
-        self.SCREEN_HEIGHT = 600
-
-    def move(self):
-        # Move the bubble
-        self.x += self.speed_x
-        self.y += self.speed_y
-
-        # Bounce off the edges of the screen
-        if self.x - self.radius < 0 or self.x + self.radius > self.SCREEN_WIDTH:
-            self.speed_x *= -1
-        if self.y - self.radius < 0 or self.y + self.radius > self.SCREEN_HEIGHT:
-            self.speed_y *= -1
-
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
-
-
-def play_video_from_images(folder, music_file, screen, width, height, resize):
+def play_video_from_images(folder, music_file, screen, width, height, resize, display_text):
    
     clock = pygame.time.Clock()
-    SCREEN_WIDTH = pygame.display.Info().current_w
-    SCREEN_HEIGHT = pygame.display.Info().current_h
+    SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     frames = []
     for filename in sorted(os.listdir(folder)):
         if filename.endswith(".png"):
@@ -81,7 +54,7 @@ def play_video_from_images(folder, music_file, screen, width, height, resize):
             if resize:
                 frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             frames.append(frame)
-
+   
     frame_index = 0
     running = True
 
@@ -89,35 +62,43 @@ def play_video_from_images(folder, music_file, screen, width, height, resize):
         pygame.mixer.music.load(music_file)
         pygame.mixer.music.play(-1)
 
+    #Load the text if needed
+    if display_text :
+        font = pygame.font.SysFont(None, 100) 
+        text = "Il GIARDINO PARLANTE ti da il benvenuto!"
+        text_surface = font.render(text, True, (255,255,255)) 
+        text_width, text_height = text_surface.get_rect().size
+    
+        if text_width > SCREEN_WIDTH:
+            words = text.split()
+            half_index = len(words) // 2
+            first_line = ' '.join(words[:half_index])
+            second_line = ' '.join(words[half_index:])
+            text_surface1 = font.render(first_line, True, (255,255,255))
+            text_surface2 = font.render(second_line, True,(255,255,255))
+            text_height = text_surface1.get_rect().height * 2  
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
-        screen.blit(frames[frame_index], (width, height))
+        
+        if display_text:
+            if text_width > SCREEN_WIDTH:
+                screen.blit(text_surface1, ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height()))
+                screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height + 20))
+            else:
+                screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
+        
+        screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
         pygame.display.flip()
         clock.tick(60)
 
         frame_index += 1
         if frame_index >= len(frames):
             frame_index = 0
-
-def display_video(video_capture, screen, width, height, position_x, position_y):
-    ret, frame = video_capture.read()
-  
-    if ret:
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert frame colors from BGR to RGB
-        frame = cv2.resize(frame, (int(width), int(height)))
-
-        frame = pygame.image.frombuffer(frame.tostring(), frame.shape[1::-1], "RGB")
-        #screen.blit(frame, (SCREEN_WIDTH - frame.get_width(), SCREEN_HEIGHT - frame.get_height()))
-        screen.blit(frame, (position_x, position_y - frame.get_height()))
-
-        pygame.display.flip()
-        pygame.time.delay(10) 
-    else:
-        video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Restart video from the beginning
-
+            running = False
+        
 def detect_face(cam, model, bg_sound, image_folder, music_folder):
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(model)
@@ -207,6 +188,8 @@ def main(avatar, model, images, music) :
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
     
+    # Color definition
+    
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     GRAY = (200, 200, 200)
@@ -229,20 +212,16 @@ def main(avatar, model, images, music) :
    
     scrolling_enabled = True
 
-    video_path = avatar 
-    video_capture = cv2.VideoCapture(video_path)
-
-    bubbles = [Bubble(SCREEN_WIDTH, SCREEN_HEIGHT) for _ in range(50)]
-
     # Button parameters
-    button_width = 200
+    button_width = 250
     button_height = 100
-    button_x = (SCREEN_WIDTH - button_width) // 4
+    button_x = (SCREEN_WIDTH - button_width) // 4 -50
     button_y = 100
-    button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4
+    button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4 + 50
+    button_y_1 = button_y + SCREEN_HEIGHT//2
 
     button_l = Button_with_icon(button_x, button_y,button_width, button_height, "Giochiamo!", icon="./icons/icon_game.png") 
-    button_r = Button_with_icon(button_x_1, button_y, button_width, button_height, "Ricordiamo!", icon="./icons/icon_remember.png") 
+    button_r = Button_with_icon(button_x_1, button_y_1 , button_width , button_height, "Ricordiamo!", icon="./icons/icon_remember.png") 
 
     game_started = False
   
@@ -271,7 +250,7 @@ def main(avatar, model, images, music) :
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 if button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height:
                     game_started = True
-                if button_x_1 <= mouse_x <= button_x_1 + button_width and button_y <= mouse_y <= button_y + button_height:
+                if button_x_1 <= mouse_x <= button_x_1 + button_width and button_y_1 <= mouse_y <= button_y_1 + button_height:
                     game_started = True
         
         button_l.draw(screen)
@@ -279,28 +258,21 @@ def main(avatar, model, images, music) :
 
         pygame.display.flip()
 
-        # Control frame rate
         pygame.time.Clock().tick(60)
 
-        while game_started :
-            while background_alpha < 200:
+        if game_started :
+            while background_alpha < 50:
                 fade_surface.set_alpha(background_alpha)
                 background_alpha += 2 
             
                 screen.blit(fade_surface, (0, 0))
-                pygame.time.Clock().tick(30)
+                pygame.time.Clock().tick(15)
                 pygame.display.flip()
-            #pygame.draw.rect(screen, WHITE, ((0,0, SCREEN_WIDTH, SCREEN_HEIGHT)))
+
+            play_video_from_images(avatar, "./background_music.wav", screen, SCREEN_WIDTH / 4, SCREEN_HEIGHT, True, True)
             cam = cv2.VideoCapture(0)
-            
-            #display_video(video_capture, screen, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH//4, SCREEN_HEIGHT) 
-            output_folder = "frames"
-            play_video_from_images(output_folder, "./background_music.wav", screen, SCREEN_WIDTH, 0, False)
             detect_face(cam, model, bg_sound, images, music) 
         
-            
-    # Release video capture and quit Pygame
-    video_capture.release()
     pygame.quit()
 
 if __name__ == "__main__" :

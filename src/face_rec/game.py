@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 import pandas as pd
 from . import interface
+import numpy as np
 
 def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT, pos_x, pos_y):
     # Inizializza il video capture
@@ -33,6 +34,64 @@ def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT, pos_x, pos
             video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
             break
 
+def play_video(folder, music_file, screen, width, height, resize, display_text, goon_button):
+   
+    clock = pygame.time.Clock()
+    SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
+    frames = []
+    for filename in sorted(os.listdir(folder)):
+        if filename.endswith(".png"):
+            frame = pygame.image.load(os.path.join(folder, filename)).convert_alpha()  # Load image with alpha channel
+            if resize:
+                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            frames.append(frame)
+   
+    frame_index = 0
+    running = True
+
+    if music_file:
+        pygame.mixer.music.load(music_file)
+        pygame.mixer.music.play(start=25, fade_ms=5000)
+
+    #Load the text if needed
+    if display_text :
+        font = pygame.font.SysFont(None, 100) 
+        text = "Eccoci nel GIARDINO PARLANTE!"
+        text_surface = font.render(text, True, (255,255,255)) 
+        text_width, text_height = text_surface.get_rect().size
+     
+    
+        if text_width > SCREEN_WIDTH:
+            words = text.split()
+            half_index = len(words) // 2
+            first_line = ' '.join(words[:half_index])
+            second_line = ' '.join(words[half_index:])
+            text_surface1 = font.render(first_line, True, (255,255,255))
+            text_surface2 = font.render(second_line, True,(255,255,255))
+            text_height = text_surface1.get_rect().height * 2  
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if goon_button.is_clicked(pygame.mouse.get_pos()):
+                    pygame.mixer.music.fadeout(5000)
+                    return
+        if display_text:
+            if text_width > SCREEN_WIDTH:
+                screen.blit(text_surface1, ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height()))
+                screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height + 20))
+            else:
+                screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
+        
+        screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
+        pygame.display.flip()
+        clock.tick(60)
+
+        frame_index += 1
+        if frame_index >= len(frames):
+            frame_index = 0
 class Button:
     def __init__(self, x, y, width, height, color, text=''):
         self.rect = pygame.Rect(x, y, width, height)
@@ -232,16 +291,10 @@ class MemoryGame:
 
                     # 3 options: music, proverb or multiple choice question
                     if image_path == "music":
-
-                        # display video of avatar
-                        interface.play_video_from_images("/Users/mattiamagro/Desktop/FaceRecognition/frames_dancing_avatar", "./music/Lorella Cuccarini - La Notte Vola.wav", self.screen, self.gameWidth/2, self.gameHeight/2, True)
                         # play the music
                         self.bg_sound.stop()
                         random_music_file = random.choice(self.music)
-                        pygame.mixer.music.load(random_music_file)
-                        sound = pygame.mixer.Sound(random_music_file)
-                        length = sound.get_length()
-                        pygame.mixer.music.play(start=25, fade_ms=self.fading_time)
+                        
                         # lateral message
                         rect_width = 300
                         rect_height = 100
@@ -252,14 +305,12 @@ class MemoryGame:
                         complete.draw(self.screen, (0, 0, 0))
 
                         pygame.display.update()
-
+                        # display video of avatar
+                        dancing_avatar = "/Users/mattiamagro/Desktop/FaceRecognition/frames_dancing_avatar"
                         while enlarged_image and (time.time() < start_time + self.max_time):
-                            for event in pygame.event.get():
-                                if event.type == pygame.MOUSEBUTTONDOWN:
-                                    if goon_button.is_clicked(pygame.mouse.get_pos()):
-                                        enlarged_image = False
-                                        pygame.mixer.music.fadeout(self.fading_time)
-                                        self.bg_sound.play()
+                            play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth/2, self.gameHeight, True, False, goon_button)
+                            enlarged_image = False      
+                            self.bg_sound.play()
 
                         pygame.mixer.music.fadeout(self.fading_time)
                         self.bg_sound.play()
@@ -304,9 +355,9 @@ class MemoryGame:
 
             win = all(self.hiddenImages)
             if win:
-                self.screen.fill(self.WHITE)
+                self.screen.fill((205,203, 192))
                 video_clip = "./avatar/winning_avatar.mp4"
-                display_video(video_clip, self.screen, self.gameWidth, self.gameHeight, 50, self.gameHeight / 4) 
+                display_video(video_clip, self.screen, self.gameWidth, self.gameHeight, self.gameWidth / 4, self.gameHeight / 4) 
                 self.show_win_message()
                 gameLoop = False
 
@@ -330,7 +381,7 @@ class MemoryGame:
         #self.screen.blit(text, text_rect)
         #pygame.display.update()
         pygame.time.wait(self.finish_time)
-        interface.main("./avatar.mp4", self.model, self.images, self.music)
+        interface.main("./frames", self.model, self.images, self.music)
 
 def main(input, model, image_folder, music_folder, bg_sound):
     
