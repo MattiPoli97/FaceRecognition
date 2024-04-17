@@ -71,8 +71,8 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     aspect_ratio = SCREEN_WIDTH // SCREEN_HEIGHT
     frames = []
-    for filename in sorted(os.listdir(folder)):
-        if filename.endswith(".png"):
+    for i, filename in enumerate(sorted(os.listdir(folder))):
+        if filename.endswith(".png") and i % 2 == 0:
             frame = pygame.image.load(os.path.join(folder, filename))
             if resize:
                 frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, (SCREEN_WIDTH // 2) // aspect_ratio))
