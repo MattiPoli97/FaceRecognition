@@ -4,10 +4,31 @@ import random
 import datetime
 import time
 from . import game
-import subprocess
-import platform
 import os
 
+WIDTH, HEIGHT = 800, 600
+
+class Ball:
+    def __init__(self, x, y, radius, color):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.speed_x = random.randint(-3, 3)
+        self.speed_y = random.randint(-3, 3)
+
+    def move(self):
+        self.x += self.speed_x
+        self.y += self.speed_y
+
+        # Rimbalzo dalle pareti
+        if self.x <= self.radius or self.x >= WIDTH - self.radius:
+            self.speed_x *= -1
+        if self.y <= self.radius or self.y >= HEIGHT - self.radius:
+            self.speed_y *= -1
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 class Button_with_icon:
     def __init__(self, x, y, width, height, text, icon=None, font=None, font_size=30, color=(229,193,66, 128), hover_color=(200, 200, 200, 128)):
         self.rect = pygame.Rect(x, y, width, height)
@@ -46,22 +67,20 @@ class Button_with_icon:
 def play_video_from_images(folder, music_file, screen, width, height, resize, display_text):
    
     clock = pygame.time.Clock()
+
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
+    aspect_ratio = SCREEN_WIDTH // SCREEN_HEIGHT
     frames = []
     for filename in sorted(os.listdir(folder)):
         if filename.endswith(".png"):
             frame = pygame.image.load(os.path.join(folder, filename))
             if resize:
-                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, (SCREEN_WIDTH // 2) // aspect_ratio))
             frames.append(frame)
    
     frame_index = 0
     running = True
-
-    if music_file:
-        pygame.mixer.music.load(music_file)
-        pygame.mixer.music.play(-1)
-
+   
     #Load the text if needed
     if display_text :
         font = pygame.font.SysFont(None, 100) 
@@ -78,6 +97,13 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
             text_surface2 = font.render(second_line, True,(255,255,255))
             text_height = text_surface1.get_rect().height * 2  
 
+    if music_file:
+        pygame.mixer.music.load(music_file)
+        sound = pygame.mixer.Sound(music_file)
+        sound.set_volume(2)
+        pygame.mixer.music.play()
+        pygame.display.flip()
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -92,7 +118,7 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
         
         screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(30)
 
         frame_index += 1
         if frame_index >= len(frames):
@@ -145,24 +171,15 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder, giochiamo):
             cv2.putText(img, str(id), (x+5,y-5), font, 1, (255,255,255), 2)
             cv2.putText(img, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)  
         
-        if id in names:
-            #text_to_speak = "Good morning {id}!! It's time to wake up. Today will be a beatiful day and it's time to shyne!"
-            bg_sound.set_volume(0.2)
-            text_to_speak_intro = f"Buongiorno {id}. Benvenuto nel giardino parlante!!"
-            text_to_speak = f"Proprio una bella giornata oggi!"
-            speak(text_to_speak_intro)
-            time.sleep(1)
-            speak(text_to_speak)
-            pygame.mixer.music.set_volume(1)
+        if id in names:   
+            #pygame.mixer.music.set_volume(1)
             time.sleep(2)
             cam.release()
             cv2.destroyAllWindows()
             game.main(input, model, image_folder, music_folder, bg_sound, giochiamo)
         
         if datetime.datetime.now() >= endTime:
-            bg_sound.set_volume(0.2)
-            text_to_speak_intro = f"Buongiorno. Benvenuto nel giardino parlante!!"
-            speak(text_to_speak_intro)
+            pygame.mixer.music.set_volume(1)
             cam.release()
             cv2.destroyAllWindows()
             game.main(input, model, image_folder, music_folder, bg_sound, giochiamo)
@@ -173,12 +190,6 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder, giochiamo):
 
     cam.release()
     cv2.destroyAllWindows()
-
-def speak(text):
-    if platform.system() == "Windows" :
-        subprocess.call(['say','-v', 'Alice', text], shell=True)
-    else :
-        subprocess.call(['say','-v', 'Alice', text])
 
 def main(avatar, model, images, music) :
     pygame.init()
@@ -199,82 +210,112 @@ def main(avatar, model, images, music) :
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("MEMORY GAME")
-    image_reverse = pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(),(SCREEN_WIDTH, SCREEN_HEIGHT))
-    rotated_scaled_image = pygame.transform.flip(image_reverse, True, False)
-    background_images = [pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)),
-                    rotated_scaled_image, pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)), rotated_scaled_image]
-    background_index = 0
-    background_alpha = 255  # Initial alpha value for fading
-    background_scroll_x = 0
-    background_scroll_speed = 2
-
+    screen.fill(WHITE)
+    balls = []
+    for _ in range(20):
+        x = random.randint(SCREEN_WIDTH // 4, 3 * SCREEN_WIDTH // 4)
+        y = random.randint(SCREEN_HEIGHT // 4, 3 * SCREEN_HEIGHT // 4)
+        radius = random.randint(10, 30)
+        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        ball = Ball(x, y, radius, color)
+        balls.append(ball)
+    
     running = True
-   
-    scrolling_enabled = True
-
-    # Button parameters
-    button_width = 250
-    button_height = 100
-    button_x = (SCREEN_WIDTH - button_width) // 4 -50
-    button_y = 100
-    button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4 + 50
-    button_y_1 = button_y + SCREEN_HEIGHT//2
-
-    button_l = Button_with_icon(button_x, button_y,button_width, button_height, "Giochiamo!", icon="./icons/icon_game.png") 
-    button_r = Button_with_icon(button_x_1, button_y_1 , button_width , button_height, "Ricordiamo!", icon="./icons/icon_remember.png") 
-
-    game_started = False
-    giochiamo = False
-  
     while running:
-        screen.fill(WHITE)
-        screen.blit(background_images[background_index], (background_scroll_x, 0))
-        screen.blit(background_images[1 - background_index], (background_scroll_x + SCREEN_WIDTH, 0))
-        
-        fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        fade_surface.fill((0, 0, 0))
-        fade_surface.set_alpha(background_alpha)
-        screen.blit(fade_surface, (0, 0))
-
-        if scrolling_enabled:
-            background_scroll_x -= background_scroll_speed
-            if background_scroll_x <= -SCREEN_WIDTH:
-                background_scroll_x = 0
-
-        if background_alpha > 0:
-            background_alpha -= 2 
-        
+        # Gestione degli eventi
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and not game_started:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height:
-                    game_started = True
-                    giochiamo = True
-                if button_x_1 <= mouse_x <= button_x_1 + button_width and button_y_1 <= mouse_y <= button_y_1 + button_height:
-                    game_started = True
-        
-        button_l.draw(screen)
-        button_r.draw(screen)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                image_reverse = pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(),(SCREEN_WIDTH, SCREEN_HEIGHT))
+                rotated_scaled_image = pygame.transform.flip(image_reverse, True, False)
+                background_images = [pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)),
+                                rotated_scaled_image, pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)), rotated_scaled_image]
+                background_index = 0
+                background_alpha = 255  # Initial alpha value for fading
+                background_scroll_x = 0
+                background_scroll_speed = 2
 
-        pygame.display.flip()
-
-        pygame.time.Clock().tick(60)
-
-        if game_started :
-            while background_alpha < 50:
-                fade_surface.set_alpha(background_alpha)
-                background_alpha += 2 
+                running_1 = True
             
-                screen.blit(fade_surface, (0, 0))
-                pygame.time.Clock().tick(15)
-                pygame.display.flip()
+                scrolling_enabled = True
 
-            play_video_from_images(avatar, "./background_music.wav", screen, SCREEN_WIDTH / 4, SCREEN_HEIGHT, True, True)
-            cam = cv2.VideoCapture(0)
-            detect_face(cam, model, bg_sound, images, music, giochiamo)
+                # Button parameters
+                button_width = 250
+                button_height = 100
+                button_x = (SCREEN_WIDTH - button_width) // 4 -50
+                button_y = 100
+                button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4 + 50
+                button_y_1 = button_y + SCREEN_HEIGHT//2
+
+                button_l = Button_with_icon(button_x, button_y,button_width, button_height, "Giochiamo!", icon="./icons/icon_game.png") 
+                button_r = Button_with_icon(button_x_1, button_y_1 , button_width , button_height, "Ricordiamo!", icon="./icons/icon_remember.png") 
+
+                game_started = False
+                giochiamo = False
+            
+                while running_1:
+                    screen.fill(WHITE)
+                    screen.blit(background_images[background_index], (background_scroll_x, 0))
+                    screen.blit(background_images[1 - background_index], (background_scroll_x + SCREEN_WIDTH, 0))
+                    
+                    fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+                    fade_surface.fill((0, 0, 0))
+                    fade_surface.set_alpha(background_alpha)
+                    screen.blit(fade_surface, (0, 0))
+
+                    if scrolling_enabled:
+                        background_scroll_x -= background_scroll_speed
+                        if background_scroll_x <= -SCREEN_WIDTH:
+                            background_scroll_x = 0
+
+                    if background_alpha > 0:
+                        background_alpha -= 2 
+                    
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            running_1 = False
+                        elif event.type == pygame.MOUSEBUTTONDOWN and not game_started:
+                            mouse_x, mouse_y = pygame.mouse.get_pos()
+                            if button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height:
+                                game_started = True
+                                giochiamo = True
+                            if button_x_1 <= mouse_x <= button_x_1 + button_width and button_y_1 <= mouse_y <= button_y_1 + button_height:
+                                game_started = True
+                    
+                    button_l.draw(screen)
+                    button_r.draw(screen)
+
+                    pygame.display.flip()
+
+                    pygame.time.Clock().tick(60)
+
+                    if game_started :
+                        while background_alpha < 50:
+                            fade_surface.set_alpha(background_alpha)
+                            background_alpha += 2 
+                        
+                            screen.blit(fade_surface, (0, 0))
+                            pygame.time.Clock().tick(15)
+                            pygame.display.flip()
+
+                        bg_sound.set_volume(0.2)
+                        avatar = "./frames"
+                        play_video_from_images(avatar, "./avatar/intro.mp4", screen, SCREEN_WIDTH // 4, SCREEN_HEIGHT, True, True)
+                        bg_sound.set_volume(1)
+                        cam = cv2.VideoCapture(0)
+                        detect_face(cam, model, bg_sound, images, music, giochiamo)
         
+        screen.fill(WHITE)
+
+        for ball in balls:
+            ball.move()
+            ball.draw(screen)
+
+        pygame.display.update()
+
+        pygame.time.delay(30)
+
     pygame.quit()
 
 if __name__ == "__main__" :

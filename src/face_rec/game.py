@@ -9,58 +9,49 @@ import pandas as pd
 from . import interface
 import numpy as np
 
-def display_video(video_capture, screen, SCREEN_WIDTH, SCREEN_HEIGHT, pos_x, pos_y):
-    # Inizializza il video capture
-    video_capture = cv2.VideoCapture(video_capture)
+def fade_out_sound(sound, duration):
+    original_volume = sound.get_volume()
+    step = original_volume / (duration / 100)  
+    for i in range(duration // 100):
+        new_volume = original_volume - step * (i + 1)
+        sound.set_volume(new_volume)
+        pygame.time.delay(100)  # Adjust delay to control fade-out speed
+    sound.stop()
 
-    while True:
-        # Leggi il frame successivo
-        ret, frame = video_capture.read()
-
-        # Verifica se il frame è stato letto correttamente
-        if ret:
-            # Converte i colori del frame da BGR a RGB
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            frame = cv2.resize(frame, (int(SCREEN_WIDTH / 2), int(SCREEN_HEIGHT / 2)))
-            
-            frame = pygame.image.frombuffer(frame.tostring(), frame.shape[1::-1], "RGB")
-            screen.blit(frame, (pos_x, pos_y))
-
-            pygame.display.flip()
-            pygame.time.delay(int(1000 / 30))  # 30 FPS (tempo in millisecondi)
-
-        else:
-            video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            break
+def fade_in_sound(sound, duration):
+    original_volume = sound.get_volume()
+    target_volume = 1.0  # 
+    steps = int(duration / 1000 * pygame.mixer.get_init()[0])  
+    step = (target_volume - original_volume) / steps
+    for i in range(steps):
+        new_volume = original_volume + step * (i + 1)
+        sound.set_volume(new_volume)
+        pygame.time.delay(int(duration / steps)) 
 
 def play_video(folder, music_file, screen, width, height, resize, display_text, goon_button):
    
     clock = pygame.time.Clock()
+
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
+    aspect_ratio = SCREEN_WIDTH // SCREEN_HEIGHT
     frames = []
     for filename in sorted(os.listdir(folder)):
         if filename.endswith(".png"):
-            frame = pygame.image.load(os.path.join(folder, filename)).convert_alpha()  # Load image with alpha channel
+            frame = pygame.image.load(os.path.join(folder, filename))
             if resize:
-                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, (SCREEN_WIDTH // 2) // aspect_ratio))
             frames.append(frame)
    
     frame_index = 0
     running = True
 
-    if music_file:
-        pygame.mixer.music.load(music_file)
-        pygame.mixer.music.play(start=25, fade_ms=5000)
-
     #Load the text if needed
     if display_text :
         font = pygame.font.SysFont(None, 100) 
-        text = "Eccoci nel GIARDINO PARLANTE!"
+        text = "Complimenti! Hai finito il Gioco!"
         text_surface = font.render(text, True, (255,255,255)) 
         text_width, text_height = text_surface.get_rect().size
      
-    
         if text_width > SCREEN_WIDTH:
             words = text.split()
             half_index = len(words) // 2
@@ -69,6 +60,12 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
             text_surface1 = font.render(first_line, True, (255,255,255))
             text_surface2 = font.render(second_line, True,(255,255,255))
             text_height = text_surface1.get_rect().height * 2  
+
+    if music_file:
+        pygame.mixer.music.load(music_file)
+        sound = pygame.mixer.Sound(music_file)
+        sound.set_volume(4)
+        pygame.mixer.music.play()
 
     while running:
         for event in pygame.event.get():
@@ -85,13 +82,17 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
             else:
                 screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
         
-        screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
+        screen.blit(frames[frame_index], (width, height))
         pygame.display.flip()
         clock.tick(60)
 
         frame_index += 1
         if frame_index >= len(frames):
-            frame_index = 0
+            if folder == "./frames_winning_avatar" :
+                break
+            else:
+                frame_index = 0
+            
 class Button:
     def __init__(self, x, y, width, height, color, text=''):
         self.rect = pygame.Rect(x, y, width, height)
@@ -127,7 +128,7 @@ class MemoryGame:
         self.finish_time = 2000
         self.startmusic_time = 30000
         self.playmusic_time = 20000
-        self.fading_time = 5000
+        self.fading_time = 2000
         self.max_time = 120
 
         # Game variables
@@ -292,7 +293,8 @@ class MemoryGame:
                     # 3 options: music, proverb or multiple choice question
                     if image_path.split('_')[0] == "music":
                         # play the music
-                        self.bg_sound.stop()
+                        #self.bg_sound.stop()
+                        fade_out_sound(self.bg_sound, self.fading_time)
                         random_music_file = random.choice(self.music)
                         
                         # lateral message
@@ -309,10 +311,12 @@ class MemoryGame:
                         dancing_avatar = "frames_dancing_avatar"
                         while enlarged_image and (time.time() < start_time + self.max_time):
                             play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth/2, self.gameHeight, True, False, goon_button)
-                            enlarged_image = False      
-                            self.bg_sound.play()
+                            enlarged_image = False 
+                            pygame.mixer.music.fadeout(self.fading_time)     
 
-                        pygame.mixer.music.fadeout(self.fading_time)
+                        #pygame.mixer.music.fadeout(self.fading_time)
+                        self.bg_sound.set_volume(1)
+                        #fade_in_sound(self.bg_sound, self.fading_time)
                         self.bg_sound.play()
 
                     elif len(image_path.split()) > 1:  # se il path ha più di una parola
@@ -361,9 +365,10 @@ class MemoryGame:
             win = all(self.hiddenImages)
             if win:
                 self.screen.fill((205,203, 192))
-                video_clip = "./avatar/winning_avatar.mp4"
-                display_video(video_clip, self.screen, self.gameWidth, self.gameHeight, self.gameWidth / 4, self.gameHeight / 4) 
+                winning_avatar = "./frames_winning_avatar"
+                play_video(winning_avatar, "./avatar/win.mp4", self.screen, self.gameWidth // 4, self.gameHeight // 2, True, False, goon_button)
                 self.show_win_message()
+                self.bg_sound.set_volume(0.2)
                 gameLoop = False
 
             pygame.display.update()
@@ -386,6 +391,7 @@ class MemoryGame:
         #self.screen.blit(text, text_rect)
         #pygame.display.update()
         pygame.time.wait(self.finish_time)
+        self.bg_sound.set_volume(0)
         interface.main("./frames", self.model, self.images, self.music)
 
 class FotoFlow:
