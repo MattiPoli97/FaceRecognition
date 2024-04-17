@@ -158,8 +158,6 @@ class MemoryGame:
 
         # Create list of Memory Pictures
         self.memoryPictures = images
-        #for item in images:
-        #    self.memoryPictures.append(item.split('.')[0])
         selected_images = random.sample(self.memoryPictures, 3)  # Randomly select 3 unique images
         self.memoryPictures = selected_images * 2  # Duplicate selected images to create pairs
         random.shuffle(self.memoryPictures)  # Shuffle the list of images
@@ -237,6 +235,9 @@ class MemoryGame:
                             option_button.draw(self.screen, (0, 0, 0))
                             pygame.display.update()
 
+        if correct_answer_given:
+            return
+
     def play(self):
         gameLoop = True
         button = Button(20, 20, 50, 25, (255, 0, 0), "X")
@@ -282,7 +283,6 @@ class MemoryGame:
                     img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4 + 50, self.gameHeight // 2))
                     self.screen.blit(enlarged_picture, img_rect)
                     goon_button.draw(self.screen, (255, 255, 255))
-                    pygame.display.update()
 
                     start_time = time.time()
 
@@ -290,7 +290,7 @@ class MemoryGame:
                     print(image_path)
 
                     # 3 options: music, proverb or multiple choice question
-                    if image_path == "music":
+                    if image_path.split('_')[0] == "music":
                         # play the music
                         self.bg_sound.stop()
                         random_music_file = random.choice(self.music)
@@ -306,7 +306,7 @@ class MemoryGame:
 
                         pygame.display.update()
                         # display video of avatar
-                        dancing_avatar = "/Users/mattiamagro/Desktop/FaceRecognition/frames_dancing_avatar"
+                        dancing_avatar = "frames_dancing_avatar"
                         while enlarged_image and (time.time() < start_time + self.max_time):
                             play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth/2, self.gameHeight, True, False, goon_button)
                             enlarged_image = False      
@@ -338,6 +338,11 @@ class MemoryGame:
 
                     else:
                         self.multiple_choice(image_path)
+                        pygame.time.wait(self.pic_display_time)
+
+                        # nuova scena con "vai a guardare pianta x e poi torna"
+
+                        enlarged_image = False
 
                     while enlarged_image and (time.time() < start_time + self.max_time):
                         for event in pygame.event.get():
@@ -383,7 +388,67 @@ class MemoryGame:
         pygame.time.wait(self.finish_time)
         interface.main("./frames", self.model, self.images, self.music)
 
-def main(input, model, image_folder, music_folder, bg_sound):
+class FotoFlow:
+    def __init__(self, input, model, images, music, bg_sound):
+        pygame.init()
+
+        self.images = images
+        self.model = model
+        self.input = input
+        self.music = music
+        self.bg_sound = bg_sound
+
+        self.gameWidth = 840
+        self.gameHeight = 640
+        self.enlarged_size = self.gameWidth // 2
+        # Initialize the screen
+        self.screen = pygame.display.set_mode((self.gameWidth, self.gameHeight))
+        pygame.display.set_caption('Foto Flow')
+        self.screen.fill((255, 255, 255))
+
+        self.flowing_images = random.sample(images, 5)
+        self.flowPics = []
+        for item in self.flowing_images:
+            picture = pygame.image.load(item)
+            picture = pygame.transform.scale(picture, (self.gameWidth, self.gameHeight))
+            self.flowPics.append(picture)
+
+    def play(self):
+        flow_alpha = 255  # Initial alpha value for fading
+        flow_scroll_x = 0
+        flow_scroll_speed = 0.5
+
+        running = True
+        scrolling_enabled = True
+        while running:
+            self.screen.fill((255, 255, 255))
+            for i, image in enumerate(self.flowPics):
+                self.screen.blit(image, (flow_scroll_x + i*self.gameWidth, 0))
+
+            fade_surface = pygame.Surface((self.gameWidth, self.gameHeight))
+            fade_surface.fill((0, 0, 0))
+            fade_surface.set_alpha(flow_alpha)
+            self.screen.blit(fade_surface, (0, 0))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            if scrolling_enabled:
+                flow_scroll_x -= flow_scroll_speed
+                if flow_scroll_x <= - (len(self.flowPics)-1) * self.gameWidth:
+                    flow_scroll_x = 0
+
+            if flow_alpha > 0:
+                flow_alpha -= 2
+
+            pygame.display.flip()
+
+        pygame.quit()
+        sys.exit()
+
+
+def main(input, model, image_folder, music_folder, bg_sound, giochiamo):
     
     images = [os.path.join(image_folder, file) for file in os.listdir(image_folder) if file.endswith(".jpeg") or file.endswith(".png")] if isinstance(image_folder, str) else image_folder
 
@@ -392,8 +457,12 @@ def main(input, model, image_folder, music_folder, bg_sound):
     else:
         music = music_folder
 
-    game = MemoryGame(input, model, images, music, bg_sound)
-    game.play()
+    if giochiamo:
+        game = MemoryGame(input, model, images, music, bg_sound)
+        game.play()
+    else:
+        game = FotoFlow(input, model, images, music, bg_sound)
+        game.play()
 
 
 if __name__ == "__main__":

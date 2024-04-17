@@ -99,7 +99,7 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
             frame_index = 0
             running = False
         
-def detect_face(cam, model, bg_sound, image_folder, music_folder):
+def detect_face(cam, model, bg_sound, image_folder, music_folder, giochiamo):
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read(model)
     
@@ -157,7 +157,7 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder):
             time.sleep(2)
             cam.release()
             cv2.destroyAllWindows()
-            game.main(input, model, image_folder, music_folder, bg_sound)
+            game.main(input, model, image_folder, music_folder, bg_sound, giochiamo)
         
         if datetime.datetime.now() >= endTime:
             bg_sound.set_volume(0.2)
@@ -165,7 +165,7 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder):
             speak(text_to_speak_intro)
             cam.release()
             cv2.destroyAllWindows()
-            game.main(input, model, image_folder, music_folder, bg_sound)
+            game.main(input, model, image_folder, music_folder, bg_sound, giochiamo)
             
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -224,6 +224,7 @@ def main(avatar, model, images, music) :
     button_r = Button_with_icon(button_x_1, button_y_1 , button_width , button_height, "Ricordiamo!", icon="./icons/icon_remember.png") 
 
     game_started = False
+    giochiamo = False
   
     while running:
         screen.fill(WHITE)
@@ -250,6 +251,7 @@ def main(avatar, model, images, music) :
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 if button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height:
                     game_started = True
+                    giochiamo = True
                 if button_x_1 <= mouse_x <= button_x_1 + button_width and button_y_1 <= mouse_y <= button_y_1 + button_height:
                     game_started = True
         
@@ -271,7 +273,7 @@ def main(avatar, model, images, music) :
 
             play_video_from_images(avatar, "./background_music.wav", screen, SCREEN_WIDTH / 4, SCREEN_HEIGHT, True, True)
             cam = cv2.VideoCapture(0)
-            detect_face(cam, model, bg_sound, images, music) 
+            detect_face(cam, model, bg_sound, images, music, giochiamo)
         
     pygame.quit()
 
