@@ -111,10 +111,6 @@ class Button:
 
     def is_correct(self, position, index):
         return True if index == position else False
-
-    def remove(self, screen):
-        # Fill the area of the button with the background color to "erase" it
-        pygame.draw.rect(screen, (255, 255, 255), self.rect)
     
 class MemoryGame:
     def __init__(self, input, model, images, music, bg_sound):
@@ -187,6 +183,56 @@ class MemoryGame:
         self.button_rect = pygame.Rect(20, 20, 100, 50)
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
+
+    def music_scene(self):
+        # play the music
+        # self.bg_sound.stop()
+        fade_out_sound(self.bg_sound, self.fading_time)
+        random_music_file = random.choice(self.music)
+
+        # lateral message
+        rect_width = 300
+        rect_height = 100
+        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        complete_y = (self.gameHeight - rect_height) // 3
+        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
+                          "Riconosci questa canzone?")
+        complete.draw(self.screen, (0, 0, 0))
+
+        pygame.display.update()
+        # display video of avatar
+        dancing_avatar = "frames_dancing_avatar"
+        while self.enlarged_image and (time.time() < self.start_time + self.max_time):
+            play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth / 2, self.gameHeight, True, False,
+                       self.goon_button)
+            self.enlarged_image = False
+            pygame.mixer.music.fadeout(self.fading_time)
+
+            # pygame.mixer.music.fadeout(self.fading_time)
+        self.bg_sound.set_volume(1)
+        # fade_in_sound(self.bg_sound, self.fading_time)
+        self.bg_sound.play()
+
+    def proverb_scene(self):
+        # lateral message
+        rect_width = 300
+        rect_height = 100
+        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        complete_y = (self.gameHeight - rect_height) // 3
+        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
+                          "Completa il proverbio")
+        complete.draw(self.screen, (0, 0, 0))
+        # proverbio
+        rect_width = 300
+        rect_height = 100
+        proverb_y = (self.gameHeight - rect_height) * 2 // 3
+        words = self.image_path.split()[
+                :len(self.image_path.split()) // 2 + 1]  # select half of the words of the proverb
+        first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
+        self.proverb = Button(proverb_x, proverb_y, rect_width, rect_height, (230, 230, 230), first_part)
+        self.proverb.draw(self.screen, (0, 0, 0))
+
+        pygame.display.update()
 
     def multiple_choice(self):
 
@@ -279,7 +325,7 @@ class MemoryGame:
             self.screen.blit(self.bgImage, self.bgImageRect)
             button.draw(self.screen, (255, 255, 255))
 
-            enlarged_image = True
+            self.enlarged_image = True
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -316,71 +362,28 @@ class MemoryGame:
                     self.screen.blit(enlarged_picture, img_rect)
                     self.goon_button.draw(self.screen, (255, 255, 255))
 
-                    start_time = time.time()
+                    self.start_time = time.time()
 
                     self.image_path = Path(self.memoryPictures[self.selection1]).stem
                     print(self.image_path)
 
                     # 3 options: music, proverb or multiple choice question
                     if self.image_path.split('_')[0] == "music":
-                        # play the music
-                        #self.bg_sound.stop()
-                        fade_out_sound(self.bg_sound, self.fading_time)
-                        random_music_file = random.choice(self.music)
-                        
-                        # lateral message
-                        rect_width = 300
-                        rect_height = 100
-                        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
-                        complete_y = (self.gameHeight - rect_height) // 3
-                        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
-                                          "Riconosci questa canzone?")
-                        complete.draw(self.screen, (0, 0, 0))
-
-                        pygame.display.update()
-                        # display video of avatar
-                        dancing_avatar = "frames_dancing_avatar"
-                        while enlarged_image and (time.time() < start_time + self.max_time):
-                            play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth/2, self.gameHeight, True, False, self.goon_button)
-                            enlarged_image = False 
-                            pygame.mixer.music.fadeout(self.fading_time)     
-
-                        #pygame.mixer.music.fadeout(self.fading_time)
-                        self.bg_sound.set_volume(1)
-                        #fade_in_sound(self.bg_sound, self.fading_time)
-                        self.bg_sound.play()
+                        self.music_scene()
 
                     elif len(self.image_path.split()) > 1:  # se il path ha più di una parola
-
-                        # lateral message
-                        rect_width = 300
-                        rect_height = 100
-                        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
-                        complete_y = (self.gameHeight - rect_height) // 3
-                        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
-                                          "Completa il proverbio")
-                        complete.draw(self.screen, (0, 0, 0))
-                        # proverbio
-                        rect_width = 300
-                        rect_height = 100
-                        proverb_y = (self.gameHeight - rect_height) * 2 // 3
-                        words = self.image_path.split()[:len(self.image_path.split()) // 2 + 1]  # select half of the words of the proverb
-                        first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
-                        self.question = Button(proverb_x, proverb_y, rect_width, rect_height, (230, 230, 230), first_part)
-                        self.question.draw(self.screen, (0, 0, 0))
-
-                        pygame.display.update()
+                        self.proverb_scene()
 
                     else:
                         self.multiple_choice()
                         pygame.time.wait(self.hide_time)
                         self.task_managing()
 
-                    while enlarged_image and (time.time() < start_time + self.max_time):
+                    while self.enlarged_image and (time.time() < self.start_time + self.max_time):
                         for event in pygame.event.get():
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 if self.goon_button.is_clicked(pygame.mouse.get_pos()):
-                                    enlarged_image = False
+                                    self.enlarged_image = False
 
 
                 else:
@@ -467,6 +470,13 @@ class FotoFlow:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_x, mouse_y = event.pos
+                    for i, image in enumerate(self.flowPics):
+                        image_x = flow_scroll_x + i * self.gameWidth
+                        if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
+                            self.screen.fill((255, 255, 255))
+                            pygame.display.update()
 
             if scrolling_enabled:
                 flow_scroll_x -= flow_scroll_speed
