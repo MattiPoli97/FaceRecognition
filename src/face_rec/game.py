@@ -39,7 +39,7 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
         if filename.endswith(".png"):
             frame = pygame.image.load(os.path.join(folder, filename))
             if resize:
-                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, (SCREEN_WIDTH // 2) // aspect_ratio))
+                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 3, (SCREEN_WIDTH // 3) // aspect_ratio))
             frames.append(frame)
    
     frame_index = 0
@@ -82,7 +82,10 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
             else:
                 screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
         
-        screen.blit(frames[frame_index], (width, height))
+        if folder != "./frames_winning_avatar" :
+            screen.blit(frames[frame_index], (width - frame.get_width(), height - frame.get_height()))
+        else:
+            screen.blit(frames[frame_index], (width, height))
         pygame.display.flip()
         clock.tick(60)
 
