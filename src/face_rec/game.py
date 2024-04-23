@@ -39,7 +39,7 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
         if filename.endswith(".png"):
             frame = pygame.image.load(os.path.join(folder, filename))
             if resize:
-                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 2, (SCREEN_WIDTH // 2) // aspect_ratio))
+                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 3, (SCREEN_WIDTH // 3) // aspect_ratio))
             frames.append(frame)
    
     frame_index = 0
@@ -82,7 +82,10 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
             else:
                 screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
         
-        screen.blit(frames[frame_index], (width, height))
+        if folder != "./frames_winning_avatar" :
+            screen.blit(frames[frame_index], (width - frame.get_width(), height - frame.get_height()))
+        else:
+            screen.blit(frames[frame_index], (width, height))
         pygame.display.flip()
         clock.tick(60)
 
@@ -299,7 +302,7 @@ class MemoryGame:
                         
                         # lateral message
                         rect_width = 300
-                        rect_height = 100
+                        rect_height = 10
                         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
                         complete_y = (self.gameHeight - rect_height) // 3
                         complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
@@ -308,9 +311,9 @@ class MemoryGame:
 
                         pygame.display.update()
                         # display video of avatar
-                        dancing_avatar = "frames_dancing_avatar"
+                        dancing_avatar = "./frames_dancing_avatar"
                         while enlarged_image and (time.time() < start_time + self.max_time):
-                            play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth/2, self.gameHeight, True, False, goon_button)
+                            play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth, self.gameHeight, True, False, goon_button)
                             enlarged_image = False 
                             pygame.mixer.music.fadeout(self.fading_time)     
 

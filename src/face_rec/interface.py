@@ -111,8 +111,8 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
         
         if display_text:
             if text_width > SCREEN_WIDTH:
-                screen.blit(text_surface1, ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height()))
-                screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height + 20))
+                screen.blit(text_surface1, ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height() -50))
+                screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height - 30))
             else:
                 screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
         
@@ -208,9 +208,16 @@ def main(avatar, model, images, music) :
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
 
+    Soft_Blue = (191, 219, 255)
+    Soft_Pink = (255, 204, 229)
+    Soft_Green = (204, 255, 204)
+    Soft_Yellow = (255, 255, 204)
+    Soft_Lavender = (230, 230, 255)
+    bg_color_list = [Soft_Blue, Soft_Yellow, Soft_Green, Soft_Lavender, Soft_Pink]
+    random_bg_color = random.choice(bg_color_list)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("MEMORY GAME")
-    screen.fill(WHITE)
+    screen.fill(random_bg_color)
     balls = []
     for _ in range(20):
         x = random.randint(SCREEN_WIDTH // 4, 3 * SCREEN_WIDTH // 4)
@@ -255,7 +262,7 @@ def main(avatar, model, images, music) :
                 giochiamo = False
             
                 while running_1:
-                    screen.fill(WHITE)
+                    screen.fill(random_bg_color)
                     screen.blit(background_images[background_index], (background_scroll_x, 0))
                     screen.blit(background_images[1 - background_index], (background_scroll_x + SCREEN_WIDTH, 0))
                     
@@ -306,7 +313,7 @@ def main(avatar, model, images, music) :
                         cam = cv2.VideoCapture(0)
                         detect_face(cam, model, bg_sound, images, music, giochiamo)
         
-        screen.fill(WHITE)
+        screen.fill(random_bg_color)
 
         for ball in balls:
             ball.move()
