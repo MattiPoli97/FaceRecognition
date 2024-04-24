@@ -30,13 +30,16 @@ class Ball:
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 class Leaf:
-    def __init__(self, x, y, size, color):
+    def __init__(self, x, y, size):
+        self.size = size
+        self.leaf = pygame.transform.scale(pygame.image.load("leaf.png"), (self.size, self.size))
         self.x = x
         self.y = y
-        self.size = size
-        self.color = color
         self.speed_x = random.randint(-3, 3)
         self.speed_y = random.randint(-3, 3)
+        if self.speed_x == 0 and self.speed_y == 0:
+            self.speed_y = 1
+            self.speed_x = 1
         self.rotation = random.randint(-180, 180)
 
     def move(self):
@@ -49,11 +52,8 @@ class Leaf:
             self.speed_y *= -1
 
     def draw(self, screen):
-        leaf_shape = pygame.Surface((self.size*2, self.size*2), pygame.SRCALPHA)
-        pygame.draw.arc(leaf_shape, self.color, (0, 0, self.size*2, self.size), math.pi, 2*math.pi, 2)
-        pygame.draw.arc(leaf_shape, self.color, (0, 0, self.size*2, self.size), 0, math.pi, 2)
-        leaf_shape = pygame.transform.rotate(leaf_shape, self.rotation)
-        screen.blit(leaf_shape, (self.x - self.size, self.y - self.size))
+        leaf = pygame.transform.rotate(self.leaf, self.rotation)
+        screen.blit(leaf, (self.x - self.size, self.y - self.size))
 
 class Button_with_icon:
     def __init__(self, x, y, width, height, text, icon=None, font=None, font_size=30, color=(229,193,66, 128), hover_color=(200, 200, 200, 128)):
@@ -245,12 +245,11 @@ def main(avatar, model, images, music) :
     pygame.display.set_caption("MEMORY GAME")
     screen.fill(random_bg_color)
     balls = []
-    for _ in range(20):
+    for _ in range(30):
         x = random.randint(SCREEN_WIDTH // 4, 3 * SCREEN_WIDTH // 4)
         y = random.randint(SCREEN_HEIGHT // 4, 3 * SCREEN_HEIGHT // 4)
-        radius = random.randint(20, 50)
-        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        ball = Leaf(x, y, radius, color)
+        radius = random.randint(20, 70)
+        ball = Leaf(x, y, radius)
         balls.append(ball)
     
     running = True
