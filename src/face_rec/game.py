@@ -8,6 +8,22 @@ from pathlib import Path
 import pandas as pd
 from . import interface
 import numpy as np
+import pyttsx3
+
+# Initialize the TTS engine
+engine = pyttsx3.init()
+
+def read(text):
+    # Set the speech rate (words per minute), default is 200
+    engine.setProperty('rate', 100)
+    # Use the TTS engine to read the provided text
+    engine.say(text)
+    engine.runAndWait()
+
+def text_sound(mp3_path):
+    audio = pygame.mixer.Sound(mp3_path)
+    audio.play()
+    pygame.time.wait(int(audio.get_length() * 1000))  # Wait for the audio to finish playing
 
 def fade_out_sound(sound, duration):
     original_volume = sound.get_volume()
@@ -187,6 +203,8 @@ class MemoryGame:
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
+        self.repeat = Button(690, 540, 100, 50, (0, 0, 255), "Ripeti")
+
     def music_scene(self):
         # play the music
         # self.bg_sound.stop()
@@ -196,13 +214,15 @@ class MemoryGame:
         # lateral message
         rect_width = 300
         rect_height = 100
-        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
-        complete_y = (self.gameHeight - rect_height) // 3
-        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
-                          "Riconosci questa canzone?")
+        music_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        music_y = (self.gameHeight - rect_height) // 3
+        text_music = "Riconosci questa canzone?"
+        complete = Button(music_x, music_y, rect_width, rect_height, (255, 255, 255), text_music)
         complete.draw(self.screen, (0, 0, 0))
 
         pygame.display.update()
+        text_sound("music_text.mp3")
+
         # display video of avatar
         dancing_avatar = "frames_dancing_avatar"
         while self.enlarged_image and (time.time() < self.start_time + self.max_time):
@@ -211,7 +231,6 @@ class MemoryGame:
             self.enlarged_image = False
             pygame.mixer.music.fadeout(self.fading_time)
 
-            # pygame.mixer.music.fadeout(self.fading_time)
         self.bg_sound.set_volume(1)
         # fade_in_sound(self.bg_sound, self.fading_time)
         self.bg_sound.play()
@@ -222,8 +241,8 @@ class MemoryGame:
         rect_height = 100
         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
         complete_y = (self.gameHeight - rect_height) // 3
-        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255),
-                          "Completa il proverbio")
+        text_complete = "Completa il proverbio"
+        complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255), text_complete)
         complete.draw(self.screen, (0, 0, 0))
         # proverbio
         rect_width = 300
@@ -234,8 +253,11 @@ class MemoryGame:
         first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
         self.proverb = Button(proverb_x, proverb_y, rect_width, rect_height, (230, 230, 230), first_part)
         self.proverb.draw(self.screen, (0, 0, 0))
+        self.repeat.draw(self.screen, (255, 255, 255))
 
         pygame.display.update()
+        text_sound("complete_proverb.mp3")
+        read(first_part)
 
     def multiple_choice(self):
 
@@ -243,7 +265,8 @@ class MemoryGame:
         rect_height = 100
         question_x = (self.gameWidth - rect_width) * 3 // 4 + 100
         question_y = (self.gameHeight - rect_height) // 8
-        self.question = Button(question_x, question_y, rect_width, rect_height, (255, 255, 255), "Che cosa vedi?")
+        text_question = "Che cosa vedi?"
+        self.question = Button(question_x, question_y, rect_width, rect_height, (255, 255, 255), text_question)
         self.question.draw(self.screen, (0, 0, 0))
 
         # list of the names of plants for options
@@ -261,6 +284,8 @@ class MemoryGame:
         options = [stemcapitalized] + random_names
         random.shuffle(options)
 
+        self.repeat.draw(self.screen, (255, 255, 255))
+
         self.option_buttons = []
         for i, option_text in enumerate(options):
             option_y = (self.gameHeight - rect_height) * (2*i + 3) // 8
@@ -272,6 +297,8 @@ class MemoryGame:
         correct_answer_given = False
 
         pygame.display.update()
+        text_sound("question_text.mp3")
+        read(options)
 
         # handle right/wrong answers
         while not correct_answer_given:
@@ -313,11 +340,17 @@ class MemoryGame:
         x = 0
         y1 = self.gameHeight // 6
         y2 = self.gameHeight * 3 // 4
-        explanation1 = Button(x, y1, self.gameWidth, 50, (255, 255, 255), "Andate qui:")
-        explanation2 = Button(x, y2, self.gameWidth, 50, (255, 255, 255), "Toccate, annusate e assaggiate ... cosa vi suscita?")
+        text1 = "Andate qui:"
+        text2 = "Tocca, annusa e assaggia ... che cosa provi?"
+        explanation1 = Button(x, y1, self.gameWidth, 50, (255, 255, 255), text1)
+        explanation2 = Button(x, y2, self.gameWidth, 50, (255, 255, 255), text2)
         explanation1.draw(self.screen, (0, 0, 0))
         explanation2.draw(self.screen, (0, 0, 0))
+        self.repeat.draw(self.screen, (255, 255, 255))
         pygame.display.update()
+        text_sound("task_1")
+        text_sound("task_2")
+        text_sound("task_3")
 
     def play(self):
         gameLoop = True

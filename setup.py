@@ -22,6 +22,7 @@ setup(
         "pygame",
         "pandas",
         "openpyxl",
+        "pyttsx3",
     ],
     entry_points={
         "console_scripts": ["face_rec=face_rec.cli:cli"]
