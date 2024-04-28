@@ -110,7 +110,7 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
     #Load the text if needed
     if display_text :
         font = pygame.font.SysFont(None, 100) 
-        text = "Il GIARDINO PARLANTE ti da il benvenuto!"
+        text = "Il GIARDINO PARLANTE ti dà il benvenuto!"
         text_surface = font.render(text, True, (255,255,255)) 
         text_width, text_height = text_surface.get_rect().size
     

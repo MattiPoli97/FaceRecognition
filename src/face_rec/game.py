@@ -259,6 +259,15 @@ class MemoryGame:
         text_sound("complete_proverb.mp3")
         read(first_part)
 
+        speak = True
+        while speak:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.repeat.is_clicked(pygame.mouse.get_pos()):
+                        text_sound("complete_proverb.mp3")
+                        read(first_part)
+                        speak = False
+
     def multiple_choice(self):
 
         rect_width = 300
@@ -299,6 +308,15 @@ class MemoryGame:
         pygame.display.update()
         text_sound("question_text.mp3")
         read(options)
+
+        speak = True
+        while speak:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.repeat.is_clicked(pygame.mouse.get_pos()):
+                        text_sound("question_text.mp3")
+                        read(options)
+                        speak = False
 
         # handle right/wrong answers
         while not correct_answer_given:
@@ -351,6 +369,17 @@ class MemoryGame:
         text_sound("task_1")
         text_sound("task_2")
         text_sound("task_3")
+
+        speak = True
+        while speak:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.repeat.is_clicked(pygame.mouse.get_pos()):
+                        text_sound("task_1")
+                        text_sound("task_2")
+                        text_sound("task_3")
+                        speak = False
+
 
     def play(self):
         gameLoop = True
