@@ -118,7 +118,7 @@ class Button:
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
         self.text = text
-        self.font = pygame.font.Font(None, 32)
+        self.font = pygame.font.Font(None, 70)
 
     def draw(self, surface, writing_color):
         pygame.draw.rect(surface, self.color, self.rect)
@@ -150,16 +150,19 @@ class MemoryGame:
         self.fading_time = 2000
         self.max_time = 120
 
+        # Initialize the screen
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        pygame.display.set_caption('Memory Game')
+
         # Game variables
-        self.gameWidth = 840
-        self.gameHeight = 640
-        self.picSize = 200
+        self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
+        self.picSize = self.gameWidth // 4
         self.enlarged_size = self.gameWidth // 2
-        self.map_sizex = 500
-        self.map_sizey = 300
+        self.map_sizex = self.gameWidth // 2
+        self.map_sizey = self.gameHeight // 2
         self.gameColumns = 3
         self.gameRows = 2
-        self.padding = 20
+        self.padding = self.gameWidth // 40
         self.leftMargin = (self.gameWidth - ((self.picSize + self.padding) * self.gameColumns)) // 2
         self.rightMargin = self.leftMargin
         self.topMargin = (self.gameHeight - ((self.picSize + self.padding) * self.gameRows)) // 2
@@ -168,10 +171,6 @@ class MemoryGame:
         self.BLACK = (0, 0, 0)
         self.selection1 = None
         self.selection2 = None
-
-        # Initialize the screen
-        self.screen = pygame.display.set_mode((self.gameWidth, self.gameHeight))
-        pygame.display.set_caption('Memory Game')
         
         # Load the background image
         self.bgImage = pygame.image.load('Background.png')
@@ -204,7 +203,8 @@ class MemoryGame:
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
-        self.repeat = Button(200, 540, 100, 50, (0, 0, 255), "Ripeti")
+        self.goon_button = Button(self.gameWidth // 16, self.gameHeight - 60, self.gameWidth // 8, self.gameHeight // 12, (0, 255, 0), "Avanti")
+        self.repeat = Button(self.gameWidth // 4, self.gameHeight - 60, self.gameWidth // 8, self.gameHeight // 12, (0, 0, 255), "Ripeti")
 
     def music_scene(self):
         # play the music
@@ -213,9 +213,9 @@ class MemoryGame:
         random_music_file = random.choice(self.music)
 
         # lateral message
-        rect_width = 300
-        rect_height = 100
-        music_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        rect_width = self.gameHeight // 2
+        rect_height = self.gameHeight // 6
+        music_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         music_y = (self.gameHeight - rect_height) // 3
         text_music = "Riconosci questa canzone?"
         complete = Button(music_x, music_y, rect_width, rect_height, (255, 255, 255), text_music)
@@ -231,6 +231,10 @@ class MemoryGame:
                        self.goon_button)
             self.enlarged_image = False
             pygame.mixer.music.fadeout(self.fading_time)
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.goon_button.is_clicked(pygame.mouse.get_pos()):
+                        self.enlarged_image = False
 
         self.bg_sound.set_volume(1)
         # fade_in_sound(self.bg_sound, self.fading_time)
@@ -238,16 +242,14 @@ class MemoryGame:
 
     def proverb_scene(self):
         # lateral message
-        rect_width = 300
-        rect_height = 100
-        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        rect_width = self.gameHeight // 2
+        rect_height = self.gameHeight // 6
+        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         complete_y = (self.gameHeight - rect_height) // 3
         text_complete = "Completa il proverbio"
         complete = Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255), text_complete)
         complete.draw(self.screen, (0, 0, 0))
         # proverbio
-        rect_width = 300
-        rect_height = 100
         proverb_y = (self.gameHeight - rect_height) * 2 // 3
         words = self.image_path.split()[
                 :len(self.image_path.split()) // 2 + 1]  # select half of the words of the proverb
@@ -260,23 +262,20 @@ class MemoryGame:
         text_sound("complete_proverb.mp3")
         read(first_part)
 
-        speak = True
-        while speak:
+        while self.enlarged_image and (time.time() < self.start_time + self.max_time):
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         text_sound("complete_proverb.mp3")
                         read(first_part)
-                        speak = False
+                    if self.goon_button.is_clicked(pygame.mouse.get_pos()):
+                        self.enlarged_image = False
 
     def multiple_choice(self):
 
-        rect_width = 300
-        rect_height = 100
-        question_x = (self.gameWidth - rect_width) * 3 // 4 + 100
+        rect_width = self.gameHeight // 2
+        rect_height = self.gameHeight // 6
+        question_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         question_y = (self.gameHeight - rect_height) // 8
         text_question = "Che cosa vedi?"
         self.question = Button(question_x, question_y, rect_width, rect_height, (255, 255, 255), text_question)
@@ -313,8 +312,8 @@ class MemoryGame:
         text_sound("question_text.mp3")
         read(options)
 
-        speak = True
-        while speak:
+        # handle right/wrong answers
+        while not correct_answer_given:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -323,15 +322,6 @@ class MemoryGame:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         text_sound("question_text.mp3")
                         read(options)
-                        speak = False
-
-        # handle right/wrong answers
-        while not correct_answer_given:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
-                if event.type == pygame.MOUSEBUTTONDOWN:
                     for i, option_button in enumerate(self.option_buttons):
                         if option_button.is_clicked(pygame.mouse.get_pos()):
                             if option_button.is_correct(i, right_index):
@@ -377,25 +367,24 @@ class MemoryGame:
         text_sound("task_2.mp3")
         text_sound("task_3.mp3")
 
-        speak = True
-        while speak:
+        while self.enlarged_image and (time.time() < self.start_time + self.max_time):
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         text_sound("task_1.mp3")
                         text_sound("task_2.mp3")
                         text_sound("task_3.mp3")
-                        speak = False
+                    if self.goon_button.is_clicked(pygame.mouse.get_pos()):
+                        self.enlarged_image = False
 
 
     def play(self):
         gameLoop = True
-        button = Button(20, 20, 50, 25, (255, 0, 0), "X")
-        self.goon_button = Button(50, 540, 100, 50, (0, 255, 0), "Avanti")
+        exit_button = Button(self.gameWidth//40, self.gameWidth//40, self.gameWidth//16, self.gameWidth//32, (255, 0, 0), "X")
        
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
-            button.draw(self.screen, (255, 255, 255))
+            exit_button.draw(self.screen, (255, 255, 255))
 
             self.enlarged_image = True
 
@@ -413,7 +402,7 @@ class MemoryGame:
                                 else:
                                     self.selection1 = index
                                     self.hiddenImages[self.selection1] = True
-                    if button.is_clicked(pygame.mouse.get_pos()):
+                    if exit_button.is_clicked(pygame.mouse.get_pos()):
                         gameLoop = False
 
             for i in range(len(self.memoryPictures)):

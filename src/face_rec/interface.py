@@ -7,30 +7,10 @@ from . import game
 import os
 import math
 
-WIDTH, HEIGHT = 800, 600
-
-class Ball:
-    def __init__(self, x, y, radius, color):
-        self.x = x
-        self.y = y
-        self.radius = radius
-        self.color = color
-        self.speed_x = random.randint(-3, 3)
-        self.speed_y = random.randint(-3, 3)
-
-    def move(self):
-        self.x += self.speed_x
-        self.y += self.speed_y
-
-        if self.x <= self.radius or self.x >= WIDTH - self.radius:
-            self.speed_x *= -1
-        if self.y <= self.radius or self.y >= HEIGHT - self.radius:
-            self.speed_y *= -1
-
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 class Leaf:
-    def __init__(self, x, y, size):
+    def __init__(self, x, y, size, SCREEN_WIDTH, SCREEN_HEIGHT):
+        self.SCREEN_WIDTH = SCREEN_WIDTH
+        self.SCREEN_HEIGHT = SCREEN_HEIGHT
         self.size = size
         self.leaf = pygame.transform.scale(pygame.image.load("leaf.png"), (self.size, self.size))
         self.x = x
@@ -46,9 +26,9 @@ class Leaf:
         self.x += self.speed_x
         self.y += self.speed_y
 
-        if self.x <= self.size or self.x >= WIDTH - self.size:
+        if self.x <= self.size or self.x >= self.SCREEN_WIDTH - self.size:
             self.speed_x *= -1
-        if self.y <= self.size or self.y >= HEIGHT - self.size:
+        if self.y <= self.size or self.y >= self.SCREEN_HEIGHT - self.size:
             self.speed_y *= -1
 
     def draw(self, screen):
@@ -56,7 +36,7 @@ class Leaf:
         screen.blit(leaf, (self.x - self.size, self.y - self.size))
 
 class Button_with_icon:
-    def __init__(self, x, y, width, height, text, icon=None, font=None, font_size=30, color=(229,193,66, 128), hover_color=(200, 200, 200, 128)):
+    def __init__(self, x, y, width, height, text, icon=None, font=None, font_size=70, color=(229,193,66, 128), hover_color=(200, 200, 200, 128)):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.icon = icon
@@ -137,10 +117,10 @@ def play_video_from_images(folder, music_file, screen, width, height, resize, di
         
         if display_text:
             if text_width > SCREEN_WIDTH:
-                screen.blit(text_surface1, ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height() -50))
+                screen.blit(text_surface1, ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height() - 50))
                 screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height - 30))
             else:
-                screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
+                screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, text_height))
         
         screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
         pygame.display.flip()
@@ -222,9 +202,6 @@ def main(avatar, model, images, music) :
     bg_sound = pygame.mixer.Sound('background_music.wav')
     bg_sound.play()
     
-    SCREEN_WIDTH = 800
-    SCREEN_HEIGHT = 600
-    
     # Color definition
     
     WHITE = (255, 255, 255)
@@ -241,15 +218,16 @@ def main(avatar, model, images, music) :
     Soft_Lavender = (230, 230, 255)
     bg_color_list = [Soft_Blue, Soft_Yellow, Soft_Green, Soft_Lavender, Soft_Pink]
     random_bg_color = random.choice(bg_color_list)
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     pygame.display.set_caption("MEMORY GAME")
     screen.fill(random_bg_color)
     balls = []
-    for _ in range(30):
+    for _ in range(40):
         x = random.randint(SCREEN_WIDTH // 4, 3 * SCREEN_WIDTH // 4)
         y = random.randint(SCREEN_HEIGHT // 4, 3 * SCREEN_HEIGHT // 4)
-        radius = random.randint(20, 70)
-        ball = Leaf(x, y, radius)
+        radius = random.randint(SCREEN_WIDTH//40, SCREEN_HEIGHT//6)
+        ball = Leaf(x, y, radius, SCREEN_WIDTH, SCREEN_HEIGHT)
         balls.append(ball)
     
     running = True
@@ -273,11 +251,11 @@ def main(avatar, model, images, music) :
                 scrolling_enabled = True
 
                 # Button parameters
-                button_width = 250
-                button_height = 100
-                button_x = (SCREEN_WIDTH - button_width) // 4 -50
-                button_y = 100
-                button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4 + 50
+                button_width = SCREEN_WIDTH // 3
+                button_height = SCREEN_HEIGHT // 6
+                button_x = (SCREEN_WIDTH - button_width) // 4 - SCREEN_WIDTH//16
+                button_y = SCREEN_HEIGHT // 6
+                button_x_1 = 3*(SCREEN_WIDTH - button_width) // 4 + SCREEN_WIDTH//16
                 button_y_1 = button_y + SCREEN_HEIGHT//2
 
                 button_l = Button_with_icon(button_x, button_y,button_width, button_height, "Giochiamo!", icon="./icons/icon_game.png") 
