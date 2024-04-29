@@ -16,6 +16,7 @@ engine = pyttsx3.init()
 def read(text):
     # Set the speech rate (words per minute), default is 200
     engine.setProperty('rate', 100)
+    engine.setProperty('pitch', 0.5)
     # Use the TTS engine to read the provided text
     engine.say(text)
     engine.runAndWait()
@@ -203,7 +204,7 @@ class MemoryGame:
         self.button_font = pygame.font.SysFont(None, 30)
         self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
-        self.repeat = Button(690, 540, 100, 50, (0, 0, 255), "Ripeti")
+        self.repeat = Button(200, 540, 100, 50, (0, 0, 255), "Ripeti")
 
     def music_scene(self):
         # play the music
@@ -262,6 +263,9 @@ class MemoryGame:
         speak = True
         while speak:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         text_sound("complete_proverb.mp3")
@@ -312,6 +316,9 @@ class MemoryGame:
         speak = True
         while speak:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         text_sound("question_text.mp3")
@@ -366,18 +373,18 @@ class MemoryGame:
         explanation2.draw(self.screen, (0, 0, 0))
         self.repeat.draw(self.screen, (255, 255, 255))
         pygame.display.update()
-        text_sound("task_1")
-        text_sound("task_2")
-        text_sound("task_3")
+        text_sound("task_1.mp3")
+        text_sound("task_2.mp3")
+        text_sound("task_3.mp3")
 
         speak = True
         while speak:
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
-                        text_sound("task_1")
-                        text_sound("task_2")
-                        text_sound("task_3")
+                        text_sound("task_1.mp3")
+                        text_sound("task_2.mp3")
+                        text_sound("task_3.mp3")
                         speak = False
 
 
