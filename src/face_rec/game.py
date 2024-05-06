@@ -162,11 +162,10 @@ class MemoryGame:
         self.map_sizey = self.gameHeight // 2
         self.gameColumns = 3
         self.gameRows = 2
-        self.padding = self.gameWidth // 40
-        self.leftMargin = (self.gameWidth - ((self.picSize + self.padding) * self.gameColumns)) // 2
-        self.rightMargin = self.leftMargin
-        self.topMargin = (self.gameHeight - ((self.picSize + self.padding) * self.gameRows)) // 2
-        self.bottomMargin = self.topMargin
+        padding = self.gameWidth // 40
+        self.leftMargin = (self.gameWidth - (self.picSize * self.gameColumns + padding * (self.gameColumns - 1))) // 2
+        self.topMargin = (self.gameHeight - (self.picSize * self.gameRows + padding * (self.gameRows - 1))) // 2
+
         self.WHITE = (255, 255, 255)
         self.BLACK = (0, 0, 0)
         self.selection1 = None
@@ -194,8 +193,8 @@ class MemoryGame:
 
         for i in range(self.gameRows):
             for j in range(self.gameColumns):
-                rect_x = self.leftMargin + j * (self.picSize + self.padding)
-                rect_y = self.topMargin + i * (self.picSize + self.padding)
+                rect_x = self.leftMargin + j * (self.picSize + padding)
+                rect_y = self.topMargin + i * (self.picSize + padding)
                 self.memPicsRect.append(pygame.Rect(rect_x, rect_y, self.picSize, self.picSize))
                 self.hiddenImages.append(False)
 
@@ -380,7 +379,7 @@ class MemoryGame:
 
     def play(self):
         gameLoop = True
-        exit_button = Button(self.gameWidth//40, self.gameWidth//40, self.gameWidth//16, self.gameWidth//32, (255, 0, 0), "X")
+        exit_button = Button(self.gameWidth//45, self.gameWidth//45, self.gameWidth//16, self.gameWidth//32, (255, 0, 0), "X")
        
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
