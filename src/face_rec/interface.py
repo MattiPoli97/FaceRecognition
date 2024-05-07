@@ -1,11 +1,6 @@
 import pygame
-import cv2
 import random
-import datetime
-import time
 from . import game
-import os
-import math
 from . import utils
 
 def main(avatar, model, images, music) :
@@ -131,15 +126,15 @@ def main(avatar, model, images, music) :
                             background_alpha += 5
                         
                             screen.blit(fade_surface, (0, 0))
-                            #pygame.time.Clock().tick(15)
                             pygame.display.flip()
 
                         bg_sound.set_volume(0.2)
                         avatar = "./frames"
-                        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, SCREEN_WIDTH // 4, SCREEN_HEIGHT, True)
+                        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, SCREEN_WIDTH // 3, SCREEN_HEIGHT, True)
                         bg_sound.set_volume(1)
-                        cam = cv2.VideoCapture(0)
-                        utils.detect_face(cam, model, bg_sound, images, music, giochiamo)
+                        game.main(input, model, images, music, bg_sound, giochiamo)
+                        #cam = cv2.VideoCapture(0)
+                        #utils.detect_face(cam, model, bg_sound, images, music, giochiamo)
 
 
     pygame.quit()

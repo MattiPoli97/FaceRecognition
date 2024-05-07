@@ -7,7 +7,6 @@ from . import game
 import os
 import pyttsx3
 
-
 class Leaf:
     def __init__(self, x, y, size, SCREEN_WIDTH, SCREEN_HEIGHT):
         self.SCREEN_WIDTH = SCREEN_WIDTH
@@ -23,6 +22,9 @@ class Leaf:
             self.speed_x = 1
         self.rotation = random.randint(-180, 180)
 
+        # Generate a random color mask
+        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
     def move(self):
         self.x += self.speed_x
         self.y += self.speed_y
@@ -33,9 +35,12 @@ class Leaf:
             self.speed_y *= -1
 
     def draw(self, screen):
-        leaf = pygame.transform.rotate(self.leaf, self.rotation)
-        screen.blit(leaf, (self.x - self.size, self.y - self.size))
+        # Apply color mask
+        colored_leaf = self.leaf.copy()
+        colored_leaf.fill(self.color + (255,), special_flags=pygame.BLEND_RGBA_MULT)  # Set alpha to 255
 
+        leaf = pygame.transform.rotate(colored_leaf, self.rotation)
+        screen.blit(leaf, (self.x - self.size, self.y - self.size))
 class Button:
     def __init__(self, x, y, width, height, color, text=''):
         self.rect = pygame.Rect(x, y, width, height)
@@ -44,17 +49,19 @@ class Button:
         self.font = pygame.font.Font(None, 70)
 
     def draw(self, surface, writing_color):
-        pygame.draw.rect(surface, self.color, self.rect)
+        pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
         text_surface = self.font.render(self.text, True, writing_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         surface.blit(text_surface, text_rect)
+
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+                pygame.draw.rect(surface, (200, 200, 200, 50), self.rect, border_radius=20)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
     def is_correct(self, position, index):
         return True if index == position else False
-
 class Button_with_icon:
     def __init__(self, x, y, width, height, text=None, icon=None, font=None, font_size=70, color=(229, 193, 66, 128),
                  hover_color=(200, 200, 200, 128)):
@@ -66,15 +73,16 @@ class Button_with_icon:
         self.hover_color = hover_color
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, self.rect)
-
+        # Draw the rectangle with anti-aliasing
+        pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
+        
         if self.rect.collidepoint(pygame.mouse.get_pos()):
-            pygame.draw.rect(surface, self.hover_color, self.rect)
+            pygame.draw.rect(surface, self.hover_color, self.rect, border_radius=20)
 
         if self.icon:
             icon_surface = pygame.image.load(self.icon).convert_alpha()
             icon_surface = pygame.transform.scale(icon_surface, (self.rect.height, self.rect.height))
-            icon_rect = icon_surface.get_rect(topleft=(self.rect.x, self.rect.y))
+            icon_rect = icon_surface.get_rect(topleft=(self.rect.x, self.rect.y)) if self.text is not None else icon_surface.get_rect(center=self.rect.center) 
             surface.blit(icon_surface, icon_rect)
 
         if self.text is not None:
@@ -84,7 +92,6 @@ class Button_with_icon:
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
-
 
 def play_video(folder, music_file, screen, width, height, resize, display_text, goon_button):
     clock = pygame.time.Clock()
@@ -159,10 +166,8 @@ def play_video_from_images(folder, music_file, screen, width, height, display_te
 
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     frames = []
-    print(folder)
-    print(sorted(os.listdir(folder)))
     for i, filename in enumerate(sorted(os.listdir(folder))):
-        if filename.endswith(".png") and filename.startswith("f") and i % 4 == 0:
+        if filename.endswith(".png") and filename.startswith("f") and i % 2 == 0:
             frame = pygame.image.load(os.path.join(folder, filename))
             frames.append(frame)
 
@@ -175,6 +180,7 @@ def play_video_from_images(folder, music_file, screen, width, height, display_te
         text = "Il GIARDINO PARLANTE ti dà il benvenuto!"
         text_surface = font.render(text, True, (255, 255, 255))
         text_width, text_height = text_surface.get_rect().size
+        text_x = (SCREEN_WIDTH - text_width) // 2
 
         if text_width > SCREEN_WIDTH:
             words = text.split()
@@ -203,7 +209,7 @@ def play_video_from_images(folder, music_file, screen, width, height, display_te
                             ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height() - 50))
                 screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height - 30))
             else:
-                screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, text_height))
+                screen.blit(text_surface, (text_x, text_height))
 
         screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
         pygame.display.flip()
