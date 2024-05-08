@@ -3,7 +3,7 @@ import cv2
 import random
 import datetime
 import time
-from . import game
+from face_rec import game
 import os
 import pyttsx3
 
@@ -54,8 +54,8 @@ class Button:
         text_rect = text_surface.get_rect(center=self.rect.center)
         surface.blit(text_surface, text_rect)
 
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-                pygame.draw.rect(surface, (200, 200, 200, 50), self.rect, border_radius=20)
+        #if self.rect.collidepoint(pygame.mouse.get_pos()):
+            #pygame.draw.rect(surface, (200, 200, 200, 50), self.rect, border_radius=20)
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
@@ -167,7 +167,7 @@ def play_video_from_images(folder, music_file, screen, width, height, display_te
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     frames = []
     for i, filename in enumerate(sorted(os.listdir(folder))):
-        if filename.endswith(".png") and filename.startswith("f") and i % 2 == 0:
+        if filename.endswith(".png") and filename.startswith("f") and i % 10 == 0:
             frame = pygame.image.load(os.path.join(folder, filename))
             frames.append(frame)
 

@@ -5,8 +5,8 @@ import sys
 import time
 from pathlib import Path
 import pandas as pd
-from . import interface, utils
-    
+from . import interface
+from . import utils
 class MemoryGame:
     def __init__(self, input, model, images, music, bg_sound):
         pygame.init()
@@ -82,9 +82,9 @@ class MemoryGame:
         self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight - 60, self.gameWidth // 8, self.gameHeight // 12,
                              (0, 0, 255), "Ripeti")
         self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 32,
-                             (255, 0, 0), "X")
-        self.home_button = utils.Button(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16, self.gameWidth // 32,
-                             (255, 0, 0), "Home")
+                                        (255, 0, 0), "X")
+        self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
+                                                  self.gameWidth // 32, icon="./icons/icon_home.png")
 
     def music_scene(self):
         # play the music
@@ -93,7 +93,7 @@ class MemoryGame:
         random_music_file = random.choice(self.music)
 
         # lateral message
-        rect_width = self.gameHeight // 2
+        rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         music_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         music_y = (self.gameHeight - rect_height) // 3
@@ -107,7 +107,7 @@ class MemoryGame:
         # display video of avatar
         dancing_avatar = "frames_dancing_avatar"
         while self.enlarged_image and (time.time() < self.start_time + self.max_time):
-            play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth / 2, self.gameHeight, True, False,
+            utils.play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth / 2, self.gameHeight, True, False,
                        self.goon_button)
             self.enlarged_image = False
             pygame.mixer.music.fadeout(self.fading_time)
@@ -122,7 +122,7 @@ class MemoryGame:
 
     def proverb_scene(self):
         # lateral message
-        rect_width = self.gameHeight // 2
+        rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         complete_y = (self.gameHeight - rect_height) // 3
@@ -153,7 +153,7 @@ class MemoryGame:
 
     def multiple_choice(self):
 
-        rect_width = self.gameHeight // 2
+        rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         question_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         question_y = (self.gameHeight - rect_height) // 8
@@ -264,7 +264,7 @@ class MemoryGame:
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
             self.exit_button.draw(self.screen, (255, 255, 255))
-            self.home_button.draw(self.screen, (255, 255, 255))
+            self.home_button.draw(self.screen)
 
             self.enlarged_image = True
 
@@ -340,7 +340,7 @@ class MemoryGame:
             if win:
                 self.screen.fill((205,203, 192))
                 winning_avatar = "./frames_winning_avatar"
-                play_video(winning_avatar, "./avatar/win.mp4", self.screen, self.gameWidth // 4, self.gameHeight // 2, True, False, self.goon_button)
+                utils.play_video(winning_avatar, "./avatar/win.mp4", self.screen, self.gameWidth // 4, self.gameHeight // 2, True, False, self.goon_button)
                 self.show_win_message()
                 self.bg_sound.set_volume(0.2)
                 gameLoop = False
@@ -393,6 +393,11 @@ class FotoFlow:
             picture = pygame.transform.scale(picture, (self.gameWidth, self.gameHeight))
             self.flowPics.append(picture)
 
+        self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
+                                        self.gameWidth // 32,(255, 0, 0), "X")
+        self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
+                                        self.gameWidth // 32, icon="./icons/icon_home.png")
+
     def play(self):
         flow_alpha = 255  # Initial alpha value for fading
         flow_scroll_x = 0
@@ -404,6 +409,8 @@ class FotoFlow:
             self.screen.fill((255, 255, 255))
             for i, image in enumerate(self.flowPics):
                 self.screen.blit(image, (flow_scroll_x + i*self.gameWidth, 0))
+            self.exit_button.draw(self.screen, (255, 255, 255))
+            self.home_button.draw(self.screen)
 
             fade_surface = pygame.Surface((self.gameWidth, self.gameHeight))
             fade_surface.fill((0, 0, 0))
@@ -411,15 +418,17 @@ class FotoFlow:
             self.screen.blit(fade_surface, (0, 0))
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x, mouse_y = event.pos
                     for i, image in enumerate(self.flowPics):
                         image_x = flow_scroll_x + i * self.gameWidth
                         if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
                             self.screen.fill((255, 255, 255))
                             pygame.display.update()
+                    if self.exit_button.is_clicked(pygame.mouse.get_pos()):
+                        running = False
+                    if self.home_button.is_clicked(pygame.mouse.get_pos()):
+                        running = False
 
             if scrolling_enabled:
                 flow_scroll_x -= flow_scroll_speed

@@ -1,7 +1,6 @@
 import pygame
 import random
-from . import game
-from . import utils
+from . import game, utils
 
 def main(avatar, model, images, music) :
     pygame.init()
