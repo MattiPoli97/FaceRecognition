@@ -7,16 +7,26 @@ from pathlib import Path
 import pandas as pd
 from . import interface
 from . import utils
-class MemoryGame:
+
+class GameBase:
     def __init__(self, input, model, images, music, bg_sound):
         pygame.init()
 
-        self.images = images
-        self.model = model
         self.input = input
+        self.model = model
+        self.images = images
         self.music = music
         self.bg_sound = bg_sound
-        
+
+        self.setup_screen()
+
+        # colors
+        self.BLACK = (0, 0, 0)
+        self.WHITE = (255, 255, 255)
+        self.RED = (255, 0, 0)
+        self.GREEN = (0, 255, 0)
+        self.BLUE = (0, 0, 255)
+
         # Time variables
         self.hide_time = 1000
         self.finish_time = 2000
@@ -25,66 +35,23 @@ class MemoryGame:
         self.fading_time = 2000
         self.max_time = 120
 
-        # Initialize the screen
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        pygame.display.set_caption('Memory Game')
-
-        # Game variables
-        self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
-        self.picSize = self.gameWidth // 4
-        self.enlarged_size = self.gameWidth // 2
-        self.map_sizex = self.gameWidth // 2
-        self.map_sizey = self.gameHeight // 2
-        self.gameColumns = 3
-        self.gameRows = 2
-        padding = self.gameWidth // 40
-        self.leftMargin = (self.gameWidth - (self.picSize * self.gameColumns + padding * (self.gameColumns - 1))) // 2
-        self.topMargin = (self.gameHeight - (self.picSize * self.gameRows + padding * (self.gameRows - 1))) // 2
-
-        self.WHITE = (255, 255, 255)
-        self.BLACK = (0, 0, 0)
-        self.selection1 = None
-        self.selection2 = None
-        
-        # Load the background image
-        self.bgImage = pygame.image.load('Background.png')
-        self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
-        self.bgImageRect = self.bgImage.get_rect()
-
-        # Create list of Memory Pictures
-        self.memoryPictures = images
-        selected_images = random.sample(self.memoryPictures, 3)  # Randomly select 3 unique images
-        self.memoryPictures = selected_images * 2  # Duplicate selected images to create pairs
-        random.shuffle(self.memoryPictures)  # Shuffle the list of images
-
-        # Load each of the images into the python memory
-        self.memPics = []
-        self.memPicsRect = []
-        self.hiddenImages = []
-        for item in self.memoryPictures:
-            picture = pygame.image.load(item)
-            picture = pygame.transform.scale(picture, (self.picSize, self.picSize))
-            self.memPics.append(picture)
-
-        for i in range(self.gameRows):
-            for j in range(self.gameColumns):
-                rect_x = self.leftMargin + j * (self.picSize + padding)
-                rect_y = self.topMargin + i * (self.picSize + padding)
-                self.memPicsRect.append(pygame.Rect(rect_x, rect_y, self.picSize, self.picSize))
-                self.hiddenImages.append(False)
-
-        self.button_rect = pygame.Rect(20, 20, 100, 50)
-        self.button_font = pygame.font.SysFont(None, 30)
-        self.button_text = self.button_font.render("Resize", True, self.BLACK)
-
-        self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight - 60, self.gameWidth // 8, self.gameHeight // 12,
-                                  (0, 255, 0), "Avanti")
-        self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight - 60, self.gameWidth // 8, self.gameHeight // 12,
-                             (0, 0, 255), "Ripeti")
-        self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 32,
-                                        (255, 0, 0), "X")
+        # Buttons
+        self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight - 60, self.gameWidth // 8,
+                                        self.gameHeight // 12,
+                                        self.GREEN, "Avanti")
+        self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight - 60, self.gameWidth // 8,
+                                   self.gameHeight // 12,
+                                   self.BLUE, "Ripeti")
+        self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
+                                        self.gameWidth // 32,
+                                        self.RED, "X")
         self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
                                                   self.gameWidth // 32, icon="./icons/icon_home.png")
+
+    def setup_screen(self):
+        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        pygame.display.set_caption('Memory Game' if isinstance(self, MemoryGame) else 'Foto Flow')
+        self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
 
     def music_scene(self):
         # play the music
@@ -212,7 +179,6 @@ class MemoryGame:
                             option_button.draw(self.screen, (0, 0, 0))
                             pygame.display.update()
 
-
     def task_managing(self):
 
         self.screen.fill((255, 255, 255))
@@ -257,6 +223,55 @@ class MemoryGame:
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
 
+class MemoryGame(GameBase):
+
+    def __init__(self, input, model, images, music, bg_sound):
+        super().__init__(input, model, images, music, bg_sound)
+
+        # Game variables
+        self.picSize = self.gameWidth // 4
+        self.enlarged_size = self.gameWidth // 2
+        self.map_sizex = self.gameWidth // 2
+        self.map_sizey = self.gameHeight // 2
+        self.gameColumns = 3
+        self.gameRows = 2
+        padding = self.gameWidth // 40
+        self.leftMargin = (self.gameWidth - (self.picSize * self.gameColumns + padding * (self.gameColumns - 1))) // 2
+        self.topMargin = (self.gameHeight - (self.picSize * self.gameRows + padding * (self.gameRows - 1))) // 2
+
+        self.selection1 = None
+        self.selection2 = None
+        
+        # Load the background image
+        self.bgImage = pygame.image.load('Background.png')
+        self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
+        self.bgImageRect = self.bgImage.get_rect()
+
+        # Create list of Memory Pictures
+        self.memoryPictures = images
+        selected_images = random.sample(self.memoryPictures, 3)  # Randomly select 3 unique images
+        self.memoryPictures = selected_images * 2  # Duplicate selected images to create pairs
+        random.shuffle(self.memoryPictures)  # Shuffle the list of images
+
+        # Load each of the images into the python memory
+        self.memPics = []
+        self.memPicsRect = []
+        self.hiddenImages = []
+        for item in self.memoryPictures:
+            picture = pygame.image.load(item)
+            picture = pygame.transform.scale(picture, (self.picSize, self.picSize))
+            self.memPics.append(picture)
+
+        for i in range(self.gameRows):
+            for j in range(self.gameColumns):
+                rect_x = self.leftMargin + j * (self.picSize + padding)
+                rect_y = self.topMargin + i * (self.picSize + padding)
+                self.memPicsRect.append(pygame.Rect(rect_x, rect_y, self.picSize, self.picSize))
+                self.hiddenImages.append(False)
+
+        self.button_rect = pygame.Rect(20, 20, 100, 50)
+        self.button_font = pygame.font.SysFont(None, 30)
+        self.button_text = self.button_font.render("Resize", True, self.BLACK)
 
     def play(self):
         gameLoop = True
@@ -312,15 +327,15 @@ class MemoryGame:
 
                     # 3 options: music, proverb or multiple choice question
                     if self.image_path.split('_')[0] == "music":
-                        self.music_scene()
+                        super().music_scene()
 
                     elif len(self.image_path.split()) > 1:  # se il path ha più di una parola
-                        self.proverb_scene()
+                        super().proverb_scene()
 
                     else:
-                        self.multiple_choice()
+                        super().multiple_choice()
                         pygame.time.wait(self.hide_time)
-                        self.task_managing()
+                        super().task_managing()
 
                     while self.enlarged_image and (time.time() < self.start_time + self.max_time):
                         for event in pygame.event.get():
@@ -368,35 +383,24 @@ class MemoryGame:
         self.bg_sound.set_volume(0)
         interface.main("./frames", self.model, self.images, self.music)
 
-class FotoFlow:
+class FotoFlow(GameBase):
     def __init__(self, input, model, images, music, bg_sound):
-        pygame.init()
-
-        self.images = images
-        self.model = model
-        self.input = input
-        self.music = music
-        self.bg_sound = bg_sound
-
-        # Initialize the screen
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        pygame.display.set_caption('Foto Flow')
-        self.screen.fill((255, 255, 255))
-
-        self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
-        self.enlarged_size = self.gameWidth // 2
+        super().__init__(input, model, images, music, bg_sound)
 
         self.flowing_images = random.sample(images, 5)
         self.flowPics = []
         for item in self.flowing_images:
             picture = pygame.image.load(item)
-            picture = pygame.transform.scale(picture, (self.gameWidth, self.gameHeight))
-            self.flowPics.append(picture)
+            # mantain aspect ratio
+            original_width, original_height = picture.get_rect().size
+            width_ratio = self.gameWidth / original_width
+            height_ratio = self.gameHeight / original_height
+            scaling_factor = min(width_ratio, height_ratio)
+            self.scaled_width = int(original_width * scaling_factor)
+            self.scaled_height = int(original_height * scaling_factor)
+            picture = pygame.transform.scale(picture, (self.scaled_width, self.scaled_height))
 
-        self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
-                                        self.gameWidth // 32,(255, 0, 0), "X")
-        self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
-                                        self.gameWidth // 32, icon="./icons/icon_home.png")
+            self.flowPics.append(picture)
 
     def play(self):
         flow_alpha = 255  # Initial alpha value for fading
@@ -408,7 +412,7 @@ class FotoFlow:
         while running:
             self.screen.fill((255, 255, 255))
             for i, image in enumerate(self.flowPics):
-                self.screen.blit(image, (flow_scroll_x + i*self.gameWidth, 0))
+                self.screen.blit(image, (flow_scroll_x + i*self.scaled_width, 0))
             self.exit_button.draw(self.screen, (255, 255, 255))
             self.home_button.draw(self.screen)
 
@@ -421,7 +425,7 @@ class FotoFlow:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x, mouse_y = event.pos
                     for i, image in enumerate(self.flowPics):
-                        image_x = flow_scroll_x + i * self.gameWidth
+                        image_x = flow_scroll_x + i * self.scaled_width
                         if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
                             self.screen.fill((255, 255, 255))
                             pygame.display.update()
