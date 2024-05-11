@@ -26,6 +26,7 @@ class GameBase:
         self.RED = (255, 0, 0)
         self.GREEN = (0, 255, 0)
         self.BLUE = (0, 0, 255)
+        self.GREY = (230, 230, 230)
 
         # Time variables
         self.hide_time = 1000
@@ -53,7 +54,7 @@ class GameBase:
         pygame.display.set_caption('Memory Game' if isinstance(self, MemoryGame) else 'Foto Flow')
         self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
 
-    def music_scene(self):
+    def music_scene(self, start_time):
         # play the music
         # self.bg_sound.stop()
         utils.fade_out_sound(self.bg_sound, self.fading_time)
@@ -65,15 +66,15 @@ class GameBase:
         music_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         music_y = (self.gameHeight - rect_height) // 3
         text_music = "Riconosci questa canzone?"
-        complete = utils.Button(music_x, music_y, rect_width, rect_height, (255, 255, 255), text_music)
-        complete.draw(self.screen, (0, 0, 0))
+        complete = utils.Button(music_x, music_y, rect_width, rect_height, self.WHITE, text_music)
+        complete.draw(self.screen, self.BLACK)
 
         pygame.display.update()
         utils.text_sound("music_text.mp3")
 
         # display video of avatar
         dancing_avatar = "frames_dancing_avatar"
-        while self.enlarged_image and (time.time() < self.start_time + self.max_time):
+        while self.enlarged_image and (time.time() < start_time + self.max_time):
             utils.play_video(dancing_avatar, random_music_file, self.screen, self.gameWidth / 2, self.gameHeight, True, False,
                        self.goon_button)
             self.enlarged_image = False
@@ -87,29 +88,29 @@ class GameBase:
         # fade_in_sound(self.bg_sound, self.fading_time)
         self.bg_sound.play()
 
-    def proverb_scene(self):
+    def proverb_scene(self, image_path, start_time):
         # lateral message
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         complete_y = (self.gameHeight - rect_height) // 3
         text_complete = "Completa il proverbio"
-        complete = utils.Button(proverb_x, complete_y, rect_width, rect_height, (255, 255, 255), text_complete)
-        complete.draw(self.screen, (0, 0, 0))
+        complete = utils.Button(proverb_x, complete_y, rect_width, rect_height, self.WHITE, text_complete)
+        complete.draw(self.screen, self.BLACK)
         # proverbio
         proverb_y = (self.gameHeight - rect_height) * 2 // 3
-        words = self.image_path.split()[
-                :len(self.image_path.split()) // 2 + 1]  # select half of the words of the proverb
+        words = image_path.split()[
+                :len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
         first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
-        self.proverb = utils.Button(proverb_x, proverb_y, rect_width, rect_height, (230, 230, 230), first_part)
-        self.proverb.draw(self.screen, (0, 0, 0))
-        self.repeat.draw(self.screen, (255, 255, 255))
+        self.proverb = utils.Button(proverb_x, proverb_y, rect_width, rect_height, self.GREY, first_part)
+        self.proverb.draw(self.screen, self.BLACK)
+        self.repeat.draw(self.screen, self.WHITE)
 
         pygame.display.update()
         utils.text_sound("complete_proverb.mp3")
         utils.read(first_part)
 
-        while self.enlarged_image and (time.time() < self.start_time + self.max_time):
+        while self.enlarged_image and (time.time() < start_time + self.max_time):
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
@@ -118,15 +119,15 @@ class GameBase:
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
 
-    def multiple_choice(self):
+    def multiple_choice(self, image_path, start_time):
 
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         question_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         question_y = (self.gameHeight - rect_height) // 8
         text_question = "Che cosa vedi?"
-        self.question = utils.Button(question_x, question_y, rect_width, rect_height, (255, 255, 255), text_question)
-        self.question.draw(self.screen, (0, 0, 0))
+        self.question = utils.Button(question_x, question_y, rect_width, rect_height, self.WHITE, text_question)
+        self.question.draw(self.screen, self.BLACK)
 
         # list of the names of plants for options
         file_path = "plant_names.xlsx"
@@ -134,7 +135,7 @@ class GameBase:
         df = pd.read_excel(file_path)
         plants_column = df['Plants']
         plant_names = [plant.capitalize() for plant in plants_column.tolist()]  # Convert the excel file to a list, first letter uppercase
-        stemcapitalized = self.image_path.capitalize()  # Make sure that stem is uppercase
+        stemcapitalized = image_path.capitalize()  # Make sure that stem is uppercase
         # extract the right name from this list and 2 other random names
         plant_names.remove(stemcapitalized)
         random_names = random.sample(plant_names, 2)
@@ -143,14 +144,14 @@ class GameBase:
         options = [stemcapitalized] + random_names
         random.shuffle(options)
 
-        self.repeat.draw(self.screen, (255, 255, 255))
+        self.repeat.draw(self.screen, self.WHITE)
 
         self.option_buttons = []
         for i, option_text in enumerate(options):
             option_y = (self.gameHeight - rect_height) * (2*i + 3) // 8
-            option_button = utils.Button(question_x, option_y, rect_width, rect_height, (230, 230, 230), option_text)
+            option_button = utils.Button(question_x, option_y, rect_width, rect_height, self.GREY, option_text)
             self.option_buttons.append(option_button)
-            option_button.draw(self.screen, (0, 0, 0))
+            option_button.draw(self.screen, self.BLACK)
 
         right_index = options.index(stemcapitalized)
         correct_answer_given = False
@@ -160,11 +161,8 @@ class GameBase:
         utils.read(options)
 
         # handle right/wrong answers
-        while not correct_answer_given:
+        while not correct_answer_given and (time.time() < start_time + self.max_time):
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         utils.text_sound("question_text.mp3")
@@ -172,30 +170,30 @@ class GameBase:
                     for i, option_button in enumerate(self.option_buttons):
                         if option_button.is_clicked(pygame.mouse.get_pos()):
                             if option_button.is_correct(i, right_index):
-                                option_button.color = (0, 255, 0)
+                                option_button.color = self.GREEN
                                 correct_answer_given = True
                             else:
-                                option_button.color = (255, 0, 0)
-                            option_button.draw(self.screen, (0, 0, 0))
+                                option_button.color = self.RED
+                            option_button.draw(self.screen, self.BLACK)
                             pygame.display.update()
 
-    def task_managing(self):
+    def task_managing(self, image_path, start_time, size):
 
-        self.screen.fill((255, 255, 255))
+        self.screen.fill(self.WHITE)
         # redraw "Avanti" button
-        self.goon_button.draw(self.screen, (255, 255, 255))
+        self.goon_button.draw(self.screen, self.WHITE)
         # draw the map picture
         map_pictures = os.listdir("image_tasks")
         for item in map_pictures:
             path = os.path.join("image_tasks", item)
             if os.path.isfile(path):
                 picture = pygame.image.load(path)
-                picture = pygame.transform.scale(picture, (self.map_sizex, self.map_sizey))
+                picture = pygame.transform.scale(picture, size)
                 pic_rect = picture.get_rect(center=(self.gameWidth // 2, self.gameHeight // 2))
                 stempath = Path(path).stem
                 words_path = stempath.split('_')
                 for word in words_path:
-                    if word == self.image_path:
+                    if word == image_path:
                         self.screen.blit(picture, pic_rect)
         # explanation of task
         x = 0
@@ -203,17 +201,17 @@ class GameBase:
         y2 = self.gameHeight * 3 // 4
         text1 = "Andate qui:"
         text2 = "Tocca, annusa e assaggia ... che cosa provi?"
-        explanation1 = utils.Button(x, y1, self.gameWidth, 50, (255, 255, 255), text1)
-        explanation2 = utils.Button(x, y2, self.gameWidth, 50, (255, 255, 255), text2)
-        explanation1.draw(self.screen, (0, 0, 0))
-        explanation2.draw(self.screen, (0, 0, 0))
-        self.repeat.draw(self.screen, (255, 255, 255))
+        explanation1 = utils.Button(x, y1, self.gameWidth, 50, self.WHITE, text1)
+        explanation2 = utils.Button(x, y2, self.gameWidth, 50, self.WHITE, text2)
+        explanation1.draw(self.screen, self.BLACK)
+        explanation2.draw(self.screen, self.BLACK)
+        self.repeat.draw(self.screen, self.WHITE)
         pygame.display.update()
         utils.text_sound("task_1.mp3")
         utils.text_sound("task_2.mp3")
         utils.text_sound("task_3.mp3")
 
-        while self.enlarged_image and (time.time() < self.start_time + self.max_time):
+        while self.enlarged_image and (time.time() < start_time + self.max_time):
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
@@ -278,14 +276,12 @@ class MemoryGame(GameBase):
 
         while gameLoop:
             self.screen.blit(self.bgImage, self.bgImageRect)
-            self.exit_button.draw(self.screen, (255, 255, 255))
+            self.exit_button.draw(self.screen, self.WHITE)
             self.home_button.draw(self.screen)
 
             self.enlarged_image = True
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    gameLoop = False
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for rect in self.memPicsRect:
                         if rect.collidepoint(event.pos):
@@ -318,26 +314,26 @@ class MemoryGame(GameBase):
                     enlarged_picture = pygame.transform.scale(enlarged_picture, (self.enlarged_size, self.enlarged_size))
                     img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4 + 50, self.gameHeight // 2))
                     self.screen.blit(enlarged_picture, img_rect)
-                    self.goon_button.draw(self.screen, (255, 255, 255))
+                    self.goon_button.draw(self.screen, self.WHITE)
 
-                    self.start_time = time.time()
+                    start_time = time.time()
 
-                    self.image_path = Path(self.memoryPictures[self.selection1]).stem
-                    print(self.image_path)
+                    image_path = Path(self.memoryPictures[self.selection1]).stem
+                    print(image_path)
 
                     # 3 options: music, proverb or multiple choice question
-                    if self.image_path.split('_')[0] == "music":
-                        super().music_scene()
+                    if image_path.split('_')[0] == "music":
+                        super().music_scene(start_time)
 
-                    elif len(self.image_path.split()) > 1:  # se il path ha più di una parola
-                        super().proverb_scene()
+                    elif len(image_path.split()) > 1:  # se il path ha più di una parola
+                        super().proverb_scene(image_path, start_time)
 
                     else:
-                        super().multiple_choice()
+                        super().multiple_choice(image_path, start_time)
                         pygame.time.wait(self.hide_time)
-                        super().task_managing()
+                        super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
 
-                    while self.enlarged_image and (time.time() < self.start_time + self.max_time):
+                    while self.enlarged_image and (time.time() < start_time + self.max_time):
                         for event in pygame.event.get():
                             if event.type == pygame.MOUSEBUTTONDOWN:
                                 if self.goon_button.is_clicked(pygame.mouse.get_pos()):
@@ -410,14 +406,14 @@ class FotoFlow(GameBase):
         running = True
         scrolling_enabled = True
         while running:
-            self.screen.fill((255, 255, 255))
+            self.screen.fill(self.WHITE)
             for i, image in enumerate(self.flowPics):
                 self.screen.blit(image, (flow_scroll_x + i*self.scaled_width, 0))
-            self.exit_button.draw(self.screen, (255, 255, 255))
+            self.exit_button.draw(self.screen, self.WHITE)
             self.home_button.draw(self.screen)
 
             fade_surface = pygame.Surface((self.gameWidth, self.gameHeight))
-            fade_surface.fill((0, 0, 0))
+            fade_surface.fill(self.BLACK)
             fade_surface.set_alpha(flow_alpha)
             self.screen.blit(fade_surface, (0, 0))
 
@@ -427,7 +423,7 @@ class FotoFlow(GameBase):
                     for i, image in enumerate(self.flowPics):
                         image_x = flow_scroll_x + i * self.scaled_width
                         if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
-                            self.screen.fill((255, 255, 255))
+                            self.screen.fill(self.WHITE)
                             pygame.display.update()
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                         running = False
