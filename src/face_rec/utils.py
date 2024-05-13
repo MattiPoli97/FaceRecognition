@@ -7,6 +7,15 @@ from face_rec import game
 import os
 import pyttsx3
 
+# colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+GREY = (230, 230, 230)
+BEIGE = (205,203, 192)
+
 class Leaf:
     def __init__(self, x, y, size, SCREEN_WIDTH, SCREEN_HEIGHT):
         self.SCREEN_WIDTH = SCREEN_WIDTH
@@ -57,6 +66,9 @@ class Button:
         #if self.rect.collidepoint(pygame.mouse.get_pos()):
             #pygame.draw.rect(surface, (200, 200, 200, 50), self.rect, border_radius=20)
 
+    def remove(self, surface):
+        pygame.draw.rect(surface, WHITE, self.rect, border_radius=20)
+
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
@@ -75,14 +87,14 @@ class Button_with_icon:
     def draw(self, surface):
         # Draw the rectangle with anti-aliasing
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
-        
+
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             pygame.draw.rect(surface, self.hover_color, self.rect, border_radius=20)
 
         if self.icon:
             icon_surface = pygame.image.load(self.icon).convert_alpha()
             icon_surface = pygame.transform.scale(icon_surface, (self.rect.height, self.rect.height))
-            icon_rect = icon_surface.get_rect(topleft=(self.rect.x, self.rect.y)) if self.text is not None else icon_surface.get_rect(center=self.rect.center) 
+            icon_rect = icon_surface.get_rect(topleft=(self.rect.x, self.rect.y)) if self.text is not None else icon_surface.get_rect(center=self.rect.center)
             surface.blit(icon_surface, icon_rect)
 
         if self.text is not None:
@@ -93,81 +105,13 @@ class Button_with_icon:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-def play_video(folder, music_file, screen, width, height, resize, display_text, goon_button):
-    clock = pygame.time.Clock()
-
-    SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
-    aspect_ratio = SCREEN_WIDTH // SCREEN_HEIGHT
-    frames = []
-    for filename in sorted(os.listdir(folder)):
-        if filename.endswith(".png"):
-            frame = pygame.image.load(os.path.join(folder, filename))
-            if resize:
-                frame = pygame.transform.scale(frame, (SCREEN_WIDTH // 3, (SCREEN_WIDTH // 3) // aspect_ratio))
-            frames.append(frame)
-
-    frame_index = 0
-    running = True
-
-    # Load the text if needed
-    if display_text:
-        font = pygame.font.SysFont(None, 100)
-        text = "Complimenti! Hai finito il Gioco!"
-        text_surface = font.render(text, True, (255, 255, 255))
-        text_width, text_height = text_surface.get_rect().size
-
-        if text_width > SCREEN_WIDTH:
-            words = text.split()
-            half_index = len(words) // 2
-            first_line = ' '.join(words[:half_index])
-            second_line = ' '.join(words[half_index:])
-            text_surface1 = font.render(first_line, True, (255, 255, 255))
-            text_surface2 = font.render(second_line, True, (255, 255, 255))
-            text_height = text_surface1.get_rect().height * 2
-
-    if music_file:
-        pygame.mixer.music.load(music_file)
-        sound = pygame.mixer.Sound(music_file)
-        sound.set_volume(4)
-        pygame.mixer.music.play()
-
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if goon_button.is_clicked(pygame.mouse.get_pos()):
-                    pygame.mixer.music.fadeout(5000)
-                    return
-        if display_text:
-            if text_width > SCREEN_WIDTH:
-                screen.blit(text_surface1,
-                            ((SCREEN_WIDTH - text_surface1.get_width()) // 2, text_surface1.get_height()))
-                screen.blit(text_surface2, ((SCREEN_WIDTH - text_surface2.get_width()) // 2, text_height + 20))
-            else:
-                screen.blit(text_surface, ((SCREEN_WIDTH - text_width) // 2, (SCREEN_HEIGHT // 2 - text_height)))
-
-        if folder != "./frames_winning_avatar":
-            screen.blit(frames[frame_index], (width - frame.get_width(), height - frame.get_height()))
-        else:
-            screen.blit(frames[frame_index], (width, height))
-        pygame.display.flip()
-        clock.tick(60)
-
-        frame_index += 1
-        if frame_index >= len(frames):
-            if folder == "./frames_winning_avatar":
-                break
-            else:
-                frame_index = 0
-
-def play_video_from_images(folder, music_file, screen, display_text):
+def play_video_from_images(folder, music_file, screen, display_text, goon_button: Button | None, text=None):
     clock = pygame.time.Clock()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     frames = []
     for i, filename in enumerate(sorted(os.listdir(folder))):
-        if filename.endswith(".png") and filename.startswith("f") and i % 10 == 0:
+        if filename.endswith(".png") and filename.startswith("f") and i % 2 == 0:
             frame = pygame.image.load(os.path.join(folder, filename))
             frames.append(frame)
 
@@ -176,8 +120,8 @@ def play_video_from_images(folder, music_file, screen, display_text):
 
     # Load the text if needed
     if display_text:
+
         font = pygame.font.SysFont(None, 100)
-        text = "Il GIARDINO PARLANTE ti dà il benvenuto!"
         text_surface = font.render(text, True, (255, 255, 255))
         text_width, text_height = text_surface.get_rect().size
         text_x = (SCREEN_WIDTH - text_width) // 2
@@ -196,12 +140,13 @@ def play_video_from_images(folder, music_file, screen, display_text):
         sound = pygame.mixer.Sound(music_file)
         sound.set_volume(2)
         pygame.mixer.music.play()
-        pygame.display.flip()
 
     while running:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if goon_button.is_clicked(pygame.mouse.get_pos()):
+                    pygame.mixer.music.fadeout(5000)
+                    return
 
         if display_text:
             if text_width > SCREEN_WIDTH:
@@ -212,13 +157,20 @@ def play_video_from_images(folder, music_file, screen, display_text):
                 screen.blit(text_surface, (text_x, text_height))
 
         frame_w, frame_h = frames[0].get_width(), frames[0].get_height()
-        screen.blit(frames[frame_index], (SCREEN_WIDTH/2 - frame_w/2, SCREEN_HEIGHT/2 - frame_h/2))
+
+        if folder == "./frames_dancing_avatar":
+            screen.blit(frames[frame_index], (SCREEN_WIDTH * 3//4 - frame_w//2, SCREEN_HEIGHT* 3//4 - frame_h//2))
+        else:
+            screen.blit(frames[frame_index], (SCREEN_WIDTH//2 - frame_w//2, SCREEN_HEIGHT//2 - frame_h//2 + text_height))
         pygame.display.flip()
         clock.tick(30)
 
         frame_index += 1
         if frame_index >= len(frames):
-            running = False
+            if folder == "./frames_dancing_avatar":
+                    frame_index = 0
+            else:
+                running = False
 
 
 def detect_face(cam, model, bg_sound, image_folder, music_folder, giochiamo):

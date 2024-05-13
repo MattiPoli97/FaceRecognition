@@ -40,4 +40,6 @@ Thumbs.db
 *.jpeg
 *.png
 *.wav
+*.mp4
+*.mp3
 venv/

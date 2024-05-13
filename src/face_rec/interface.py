@@ -8,14 +8,6 @@ def main(avatar, model, images, music) :
     bg_sound.play(loops=-1)
     
     # Color definition
-    
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-    GRAY = (200, 200, 200)
-    RED = (255, 0, 0)
-    GREEN = (0, 255, 0)
-    BLUE = (0, 0, 255)
-
     Soft_Blue = (191, 219, 255)
     Soft_Pink = (255, 204, 229)
     Soft_Green = (204, 255, 204)
@@ -49,7 +41,7 @@ def main(avatar, model, images, music) :
     button_r = utils.Button_with_icon(button_x_1, button_y_1, button_width, button_height, "Ricordiamo!",
                                       icon="./icons/icon_remember.png")
     exit_button = utils.Button(SCREEN_WIDTH // 45, SCREEN_WIDTH // 45, SCREEN_WIDTH // 16,
-                                         SCREEN_WIDTH // 32, RED, "X")
+                                         SCREEN_WIDTH // 32, utils.RED, "X")
     home_button = utils.Button_with_icon(SCREEN_WIDTH // 45, SCREEN_WIDTH // 16, SCREEN_WIDTH // 16,
                                          SCREEN_WIDTH // 32, icon="./icons/icon_home.png")
 
@@ -86,7 +78,7 @@ def main(avatar, model, images, music) :
                     screen.blit(background_images[background_index], (background_scroll_x, 0))
                     screen.blit(background_images[1 - background_index], (background_scroll_x + SCALED_WIDTH, 0))
                     
-                    fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGTH))
+                    fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
                     fade_surface.fill((0, 0, 0))
                     fade_surface.set_alpha(background_alpha)
                     screen.blit(fade_surface, (0, 0))
@@ -114,7 +106,7 @@ def main(avatar, model, images, music) :
                     
                     button_l.draw(screen)
                     button_r.draw(screen)
-                    exit_button.draw(screen, WHITE)
+                    exit_button.draw(screen, utils.WHITE)
                     home_button.draw(screen)
 
                     pygame.display.flip()
@@ -131,7 +123,8 @@ def main(avatar, model, images, music) :
 
                         bg_sound.set_volume(0.2)
                         avatar = "./frames"
-                        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, True)
+                        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen,
+                                                     True, "Il giardino parlante ti dà il benvenuto!")
                         bg_sound.set_volume(1)
                         game.main(input, model, images, music, bg_sound, giochiamo)
                         #cam = cv2.VideoCapture(0)
