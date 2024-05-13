@@ -318,3 +318,12 @@ def fade_in_sound(sound, duration):
         new_volume = original_volume + step * (i + 1)
         sound.set_volume(new_volume)
         pygame.time.delay(int(duration / steps))
+
+def mantain_aspectratio(picture, windowWidth, windowHeight):
+    original_width, original_height = picture.get_rect().size
+    width_ratio = windowWidth / original_width
+    height_ratio = windowHeight / original_height
+    scaling_factor = min(width_ratio, height_ratio)
+    scaled_width = int(original_width * scaling_factor)
+    scaled_height = int(original_height * scaling_factor)
+    return scaled_width, scaled_height

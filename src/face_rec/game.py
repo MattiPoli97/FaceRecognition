@@ -242,7 +242,8 @@ class MemoryGame(GameBase):
         
         # Load the background image
         self.bgImage = pygame.image.load('Background.png')
-        self.bgImage = pygame.transform.scale(self.bgImage, (self.gameWidth, self.gameHeight))
+        scaled_bgW, scaled_gbH = utils.mantain_aspectratio(self.bgImage, self.gameWidth, self.gameHeight)
+        self.bgImage = pygame.transform.scale(self.bgImage, (scaled_bgW, scaled_gbH))
         self.bgImageRect = self.bgImage.get_rect()
 
         # Create list of Memory Pictures
@@ -387,13 +388,7 @@ class FotoFlow(GameBase):
         self.flowPics = []
         for item in self.flowing_images:
             picture = pygame.image.load(item)
-            # mantain aspect ratio
-            original_width, original_height = picture.get_rect().size
-            width_ratio = self.gameWidth / original_width
-            height_ratio = self.gameHeight / original_height
-            scaling_factor = min(width_ratio, height_ratio)
-            self.scaled_width = int(original_width * scaling_factor)
-            self.scaled_height = int(original_height * scaling_factor)
+            self.scaled_width, self.scaled_height = utils.mantain_aspectratio(picture, self.gameWidth, self.gameHeight)
             picture = pygame.transform.scale(picture, (self.scaled_width, self.scaled_height))
 
             self.flowPics.append(picture)
