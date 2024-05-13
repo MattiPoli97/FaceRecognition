@@ -65,10 +65,11 @@ def main(avatar, model, images, music) :
         # Gestione degli eventi
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                image_reverse = pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(),(SCREEN_WIDTH, SCREEN_HEIGHT))
-                rotated_scaled_image = pygame.transform.flip(image_reverse, True, False)
-                background_images = [pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)),
-                                rotated_scaled_image, pygame.transform.scale(pygame.image.load('Background.png').convert_alpha(), (SCREEN_WIDTH, SCREEN_HEIGHT)), rotated_scaled_image]
+                image = pygame.image.load('Background.png').convert_alpha()
+                SCALED_WIDTH, SCALED_HEIGTH = utils.mantain_aspectratio(image, SCREEN_WIDTH, SCREEN_HEIGHT)
+                image_scaled = pygame.transform.scale(image,(SCALED_WIDTH, SCALED_HEIGTH))
+                rotated_scaled_image = pygame.transform.flip(image_scaled, True, False)
+                background_images = [image_scaled, rotated_scaled_image, image_scaled, rotated_scaled_image]
                 background_index = 0
                 background_alpha = 255  # Initial alpha value for fading
                 background_scroll_x = 0

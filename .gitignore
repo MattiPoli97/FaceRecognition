@@ -38,5 +38,6 @@ Thumbs.db
 
 # Large files #
 *.jpeg
+*.png
 *.wav
 venv/
