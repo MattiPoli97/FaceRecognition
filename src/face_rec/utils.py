@@ -161,7 +161,7 @@ def play_video(folder, music_file, screen, width, height, resize, display_text, 
             else:
                 frame_index = 0
 
-def play_video_from_images(folder, music_file, screen, width, height, display_text):
+def play_video_from_images(folder, music_file, screen, display_text):
     clock = pygame.time.Clock()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
@@ -211,7 +211,8 @@ def play_video_from_images(folder, music_file, screen, width, height, display_te
             else:
                 screen.blit(text_surface, (text_x, text_height))
 
-        screen.blit(frames[frame_index], (width, height - frame.get_rect().size[1]))
+        frame_w, frame_h = frames[0].get_width(), frames[0].get_height()
+        screen.blit(frames[frame_index], (SCREEN_WIDTH/2 - frame_w/2, SCREEN_HEIGHT/2 - frame_h/2))
         pygame.display.flip()
         clock.tick(30)
 

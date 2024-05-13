@@ -23,10 +23,11 @@ def main(avatar, model, images, music) :
     Soft_Lavender = (230, 230, 255)
     bg_color_list = [Soft_Blue, Soft_Yellow, Soft_Green, Soft_Lavender, Soft_Pink]
     random_bg_color = random.choice(bg_color_list)
+
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
     pygame.display.set_caption("MEMORY GAME")
-    screen.fill(random_bg_color)
+
     balls = []
     for _ in range(40):
         x = random.randint(SCREEN_WIDTH // 4, 3 * SCREEN_WIDTH // 4)
@@ -83,9 +84,9 @@ def main(avatar, model, images, music) :
                 while running_1:
                     screen.fill(random_bg_color)
                     screen.blit(background_images[background_index], (background_scroll_x, 0))
-                    screen.blit(background_images[1 - background_index], (background_scroll_x + SCREEN_WIDTH, 0))
+                    screen.blit(background_images[1 - background_index], (background_scroll_x + SCALED_WIDTH, 0))
                     
-                    fade_surface = pygame.Surface((SCALED_WIDTH, SCALED_HEIGTH))
+                    fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGTH))
                     fade_surface.fill((0, 0, 0))
                     fade_surface.set_alpha(background_alpha)
                     screen.blit(fade_surface, (0, 0))
@@ -130,7 +131,7 @@ def main(avatar, model, images, music) :
 
                         bg_sound.set_volume(0.2)
                         avatar = "./frames"
-                        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, SCREEN_WIDTH // 3, SCREEN_HEIGHT, True)
+                        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, True)
                         bg_sound.set_volume(1)
                         game.main(input, model, images, music, bg_sound, giochiamo)
                         #cam = cv2.VideoCapture(0)
