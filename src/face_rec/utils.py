@@ -43,13 +43,18 @@ class Leaf:
         if self.y <= self.size or self.y >= self.SCREEN_HEIGHT - self.size:
             self.speed_y *= -1
 
+        self.rotation += self.speed_x
+
     def draw(self, screen):
         # Apply color mask
         colored_leaf = self.leaf.copy()
         colored_leaf.fill(self.color + (255,), special_flags=pygame.BLEND_RGBA_MULT)  # Set alpha to 255
 
-        leaf = pygame.transform.rotate(colored_leaf, self.rotation)
-        screen.blit(leaf, (self.x - self.size, self.y - self.size))
+        # Rotate around the center of the leaf
+        rotated_leaf = pygame.transform.rotate(colored_leaf, self.rotation)
+        rect = rotated_leaf.get_rect(center=(self.x, self.y))
+
+        screen.blit(rotated_leaf, rect.topleft)
 class Button:
     def __init__(self, x, y, width, height, color, text=''):
         self.rect = pygame.Rect(x, y, width, height)
