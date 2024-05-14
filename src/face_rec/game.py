@@ -61,6 +61,8 @@ class GameBase:
         utils.fade_out_sound(self.bg_sound, self.fading_time)
         random_music_file = random.choice(self.music)
 
+        self.repeat.remove(self.screen)
+
         # lateral message
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
@@ -298,7 +300,7 @@ class MemoryGame(GameBase):
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                         gameLoop = False
                     if self.home_button.is_clicked(pygame.mouse.get_pos()):
-                        gameLoop = False
+                        interface.main("./frames", self.model, self.images, self.music)
 
             for i in range(len(self.memoryPictures)):
                 if self.hiddenImages[i]:
@@ -407,7 +409,7 @@ class FotoFlow(GameBase):
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                         running = False
                     if self.home_button.is_clicked(pygame.mouse.get_pos()):
-                        running = False
+                        interface.main("./frames", self.model, self.images, self.music)
 
             if scrolling_enabled:
                 flow_scroll_x -= flow_scroll_speed
