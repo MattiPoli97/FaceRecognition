@@ -67,7 +67,7 @@ class GameBase:
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         music_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
-        music_y = (self.gameHeight - rect_height) // 3
+        music_y = (self.gameHeight - rect_height) // 4
         text_music = "Riconosci questa canzone?"
         complete = utils.Button(music_x, music_y, rect_width, rect_height, utils.WHITE, text_music)
         complete.draw(self.screen, utils.BLACK)
@@ -103,11 +103,18 @@ class GameBase:
         complete.draw(self.screen, utils.BLACK)
         # proverbio
         proverb_y = (self.gameHeight - rect_height) * 2 // 3
-        words = image_path.split()[
-                :len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
-        first_part = ' '.join(words) + ' ...'  # concatenate the words followed by ...
+        first_words = image_path.split()[:len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
+        first_part = ' '.join(first_words) + ' ...'  # concatenate the words followed by ...
         self.proverb = utils.Button(proverb_x, proverb_y, rect_width, rect_height, utils.GREY, first_part)
         self.proverb.draw(self.screen, utils.BLACK)
+        # button for showing the solution
+        solution_b = utils.Button(proverb_x, self.gameHeight - rect_height, self.gameWidth // 8, self.gameWidth // 20,
+                                  utils.YELLOW, "Aiuto")
+        solution_b.draw(self.screen, utils.BLACK)
+        last_words = image_path.split()[len(image_path.split()) // 2 + 1:]
+        last_part = ' '.join(last_words)
+        solution_y = self.gameHeight - rect_height -20
+        solution = utils.Button(proverb_x, solution_y, rect_width, rect_height, utils.GREY, last_part)
 
         pygame.display.update()
         utils.text_sound("complete_proverb.mp3")
@@ -119,6 +126,9 @@ class GameBase:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
                         utils.text_sound("complete_proverb.mp3")
                         utils.read(first_part)
+                    if solution_b.is_clicked(pygame.mouse.get_pos()):
+                        solution.draw(self.screen, utils.BLACK)
+                        pygame.display.update()
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
 

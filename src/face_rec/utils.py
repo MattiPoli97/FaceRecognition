@@ -13,6 +13,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 GREY = (230, 230, 230)
 BEIGE = (205,203, 192)
 
@@ -67,9 +68,6 @@ class Button:
         text_surface = self.font.render(self.text, True, writing_color)
         text_rect = text_surface.get_rect(center=self.rect.center)
         surface.blit(text_surface, text_rect)
-
-        #if self.rect.collidepoint(pygame.mouse.get_pos()):
-            #pygame.draw.rect(surface, (200, 200, 200, 50), self.rect, border_radius=20)
 
     def remove(self, surface):
         pygame.draw.rect(surface, WHITE, self.rect, border_radius=20)
