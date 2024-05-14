@@ -124,7 +124,7 @@ def main(avatar, model, images, music) :
                         bg_sound.set_volume(0.2)
                         avatar = "./frames"
                         utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen,
-                                                     True, "Il giardino parlante ti dà il benvenuto!")
+                                                     True, None,"Il giardino parlante ti dà il benvenuto!")
                         bg_sound.set_volume(1)
                         game.main(input, model, images, music, bg_sound, giochiamo)
                         #cam = cv2.VideoCapture(0)
