@@ -147,7 +147,7 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
     while running:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if goon_button.is_clicked(pygame.mouse.get_pos()):
+                if goon_button is not None and goon_button.is_clicked(pygame.mouse.get_pos()):
                     pygame.mixer.music.fadeout(5000)
                     return
 
@@ -164,7 +164,7 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
         if folder == "./frames_dancing_avatar":
             screen.blit(frames[frame_index], (SCREEN_WIDTH * 3//4 - frame_w//2, SCREEN_HEIGHT* 3//4 - frame_h//2))
         else:
-            screen.blit(frames[frame_index], (SCREEN_WIDTH//2 - frame_w//2, SCREEN_HEIGHT//2 - frame_h//2 + text_height))
+            screen.blit(frames[frame_index], (SCREEN_WIDTH//2 - frame_w//2, SCREEN_HEIGHT - frame_h))
         pygame.display.flip()
         clock.tick(30)
 

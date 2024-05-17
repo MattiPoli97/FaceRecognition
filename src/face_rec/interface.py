@@ -83,7 +83,7 @@ class Interface:
                     giochiamo = False
 
                     while running_1:
-                        self.screen.fill(self.random_bg_color)
+
                         self.screen.blit(background_images[background_index], (background_scroll_x, 0))
                         self.screen.blit(background_images[1 - background_index], (background_scroll_x + SCALED_WIDTH, 0))
 

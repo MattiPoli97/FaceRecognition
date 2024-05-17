@@ -28,6 +28,11 @@ class GameBase:
         self.fading_time = 2000
         self.max_time = 120
 
+        # Size variables
+        self.enlarged_size = self.gameWidth * 3 // 7
+        self.map_sizex = self.gameWidth // 2
+        self.map_sizey = self.gameHeight // 2
+
         # Buttons
         self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
                                         self.gameHeight // 12,
@@ -75,7 +80,6 @@ class GameBase:
         pygame.display.update()
         utils.text_sound("music_text.mp3")
 
-        # display video of avatar
         while self.enlarged_image and (time.time() < start_time + self.max_time):
 
             utils.play_video_from_images("./frames_dancing_avatar", random_music_file, self.screen,
@@ -121,6 +125,7 @@ class GameBase:
         utils.read(first_part)
 
         while self.enlarged_image and (time.time() < start_time + self.max_time):
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
@@ -175,6 +180,7 @@ class GameBase:
 
         # handle right/wrong answers
         while not correct_answer_given and (time.time() < start_time + self.max_time):
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
@@ -225,6 +231,7 @@ class GameBase:
         utils.text_sound("task_3.mp3")
 
         while self.enlarged_image and (time.time() < start_time + self.max_time):
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.repeat.is_clicked(pygame.mouse.get_pos()):
@@ -241,9 +248,6 @@ class MemoryGame(GameBase):
 
         # Game variables
         self.picSize = self.gameWidth // 4
-        self.enlarged_size = self.gameWidth * 3//7
-        self.map_sizex = self.gameWidth // 2
-        self.map_sizey = self.gameHeight // 2
         self.gameColumns = 3
         self.gameRows = 2
         padding = self.gameWidth // 40
@@ -342,13 +346,6 @@ class MemoryGame(GameBase):
                         pygame.time.wait(self.hide_time)
                         super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
 
-                    while self.enlarged_image and (time.time() < start_time + self.max_time):
-                        for event in pygame.event.get():
-                            if event.type == pygame.MOUSEBUTTONDOWN:
-                                if self.goon_button.is_clicked(pygame.mouse.get_pos()):
-                                    self.enlarged_image = False
-
-
                 else:
                     pygame.time.wait(self.hide_time)
                     self.hiddenImages[self.selection1] = False
@@ -392,14 +389,19 @@ class FotoFlow(GameBase):
     def play(self):
         flow_alpha = 255  # Initial alpha value for fading
         flow_scroll_x = 0
-        flow_scroll_speed = 0.5
+        flow_scroll_speed = 2
 
         running = True
         scrolling_enabled = True
         while running:
             self.screen.fill(utils.WHITE)
+            total_width = len(self.flowPics) * self.scaled_width
             for i, image in enumerate(self.flowPics):
-                self.screen.blit(image, (flow_scroll_x + i*self.scaled_width, 0))
+                x_pos = (flow_scroll_x + i * self.scaled_width) % total_width
+                self.screen.blit(image, (x_pos, 0))
+                if x_pos > self.gameWidth - self.scaled_width:
+                    self.screen.blit(image, (x_pos - total_width, 0))
+
             self.exit_button.draw(self.screen, utils.WHITE)
             self.home_button.draw(self.screen)
 
@@ -409,17 +411,35 @@ class FotoFlow(GameBase):
             self.screen.blit(fade_surface, (0, 0))
 
             for event in pygame.event.get():
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x, mouse_y = event.pos
-                    for i, image in enumerate(self.flowPics):
-                        image_x = flow_scroll_x + i * self.scaled_width
-                        if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
-                            self.screen.fill(utils.WHITE)
-                            pygame.display.update()
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                         running = False
+                        break
                     if self.home_button.is_clicked(pygame.mouse.get_pos()):
                         interface.main("./frames", self.model, self.images, self.music)
+                        break
+
+                    for i, image in enumerate(self.flowPics):
+                        image_path = Path(self.flowing_images[i]).stem
+                        image_x = flow_scroll_x + i * self.scaled_width
+                        if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
+                            start_time = time.time()
+                            self.enlarged_image = True
+                            super().enlarge_image(self.flowing_images[i], (self.enlarged_size, self.enlarged_size))
+
+                            if image_path.split('_')[0] == "music":
+                                super().music_scene(start_time)
+
+                            elif len(image_path.split()) > 1:  # se il path ha più di una parola
+                                super().proverb_scene(image_path, start_time)
+
+                            else:
+                                super().multiple_choice(image_path, start_time)
+                                pygame.time.wait(self.hide_time)
+                                super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
 
             if scrolling_enabled:
                 flow_scroll_x -= flow_scroll_speed
