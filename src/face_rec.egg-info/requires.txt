@@ -8,3 +8,4 @@ click
 pygame
 pandas
 openpyxl
+pyttsx3

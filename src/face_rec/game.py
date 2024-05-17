@@ -36,13 +36,13 @@ class GameBase:
         # Buttons
         self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
                                         self.gameHeight // 12,
-                                        utils.GREEN, "Avanti")
+                                        utils.Soft_Green, "Avanti")
         self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
                                    self.gameHeight // 12,
-                                   utils.BLUE, "Ripeti")
+                                   utils.Soft_Lavender, "Ripeti")
         self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
                                         self.gameWidth // 32,
-                                        utils.RED, "X")
+                                        utils.Soft_red, "X")
         self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
                                                   self.gameWidth // 32, icon="./icons/icon_home.png")
 
@@ -189,10 +189,10 @@ class GameBase:
                     for i, option_button in enumerate(self.option_buttons):
                         if option_button.is_clicked(pygame.mouse.get_pos()):
                             if option_button.is_correct(i, right_index):
-                                option_button.color = utils.GREEN
+                                option_button.color = utils.Soft_Green
                                 correct_answer_given = True
                             else:
-                                option_button.color = utils.RED
+                                option_button.color = utils.Soft_red
                             option_button.draw(self.screen, utils.BLACK)
                             pygame.display.update()
 
@@ -320,7 +320,7 @@ class MemoryGame(GameBase):
                 if self.hiddenImages[i]:
                     self.screen.blit(self.memPics[i], self.memPicsRect[i].topleft)
                 else:
-                    pygame.draw.rect(self.screen, utils.WHITE, self.memPicsRect[i])
+                    pygame.draw.rect(self.screen, utils.WHITE, self.memPicsRect[i], border_radius=20)
             pygame.display.flip()
 
             if self.selection1 is not None and self.selection2 is not None:
