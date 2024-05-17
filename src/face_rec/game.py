@@ -98,6 +98,7 @@ class GameBase:
 
     def proverb_scene(self, image_path, start_time):
         # lateral message
+        utils.fade_out_sound(self.bg_sound, self.fading_time)
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         proverb_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
@@ -113,7 +114,7 @@ class GameBase:
         self.proverb.draw(self.screen, utils.BLACK)
         # button for showing the solution
         solution_b = utils.Button(proverb_x, self.gameHeight - rect_height, self.gameWidth // 8, self.gameWidth // 20,
-                                  utils.YELLOW, "Aiuto")
+                                  utils.YELLOW, "Soluzione")
         solution_b.draw(self.screen, utils.BLACK)
         last_words = image_path.split()[len(image_path.split()) // 2 + 1:]
         last_part = ' '.join(last_words)
@@ -136,6 +137,9 @@ class GameBase:
                         pygame.display.update()
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
+
+        self.bg_sound.set_volume(1)
+        self.bg_sound.play()
 
     def multiple_choice(self, image_path, start_time):
 
@@ -189,10 +193,10 @@ class GameBase:
                     for i, option_button in enumerate(self.option_buttons):
                         if option_button.is_clicked(pygame.mouse.get_pos()):
                             if option_button.is_correct(i, right_index):
-                                option_button.color = utils.GREEN
+                                option_button.color = utils.Soft_Green
                                 correct_answer_given = True
                             else:
-                                option_button.color = utils.RED
+                                option_button.color = utils.Soft_red
                             option_button.draw(self.screen, utils.BLACK)
                             pygame.display.update()
 
@@ -293,7 +297,9 @@ class MemoryGame(GameBase):
         gameLoop = True
 
         while gameLoop:
-            self.screen.blit(self.bgImage, self.bgImageRect)
+            color_bg = (225,229,233)
+            self.screen.fill(color_bg)
+            #self.screen.blit(self.bgImage, self.bgImageRect)
             self.exit_button.draw(self.screen, utils.WHITE)
             self.home_button.draw(self.screen)
 
@@ -314,13 +320,15 @@ class MemoryGame(GameBase):
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                         gameLoop = False
                     if self.home_button.is_clicked(pygame.mouse.get_pos()):
+                        self.bg_sound.set_volume(0)
+                        self.bg_sound.stop()
                         interface.main("./frames", self.model, self.images, self.music)
 
             for i in range(len(self.memoryPictures)):
                 if self.hiddenImages[i]:
                     self.screen.blit(self.memPics[i], self.memPicsRect[i].topleft)
                 else:
-                    pygame.draw.rect(self.screen, utils.WHITE, self.memPicsRect[i])
+                    pygame.draw.rect(self.screen, utils.WHITE, self.memPicsRect[i], border_radius=20)
             pygame.display.flip()
 
             if self.selection1 is not None and self.selection2 is not None:
@@ -400,7 +408,7 @@ class FotoFlow(GameBase):
                 x_pos = (flow_scroll_x + i * self.scaled_width) % total_width
                 self.screen.blit(image, (x_pos, 0))
                 if x_pos > self.gameWidth - self.scaled_width:
-                    self.screen.blit(image, (x_pos - total_width, 0))
+                    selfx.screen.blit(image, (x_pos - total_width, 0))
 
             self.exit_button.draw(self.screen, utils.WHITE)
             self.home_button.draw(self.screen)

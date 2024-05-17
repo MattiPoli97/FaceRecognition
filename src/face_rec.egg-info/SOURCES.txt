@@ -8,6 +8,7 @@ src/face_rec/game.py
 src/face_rec/interface.py
 src/face_rec/model_creation.py
 src/face_rec/test_model.py
+src/face_rec/utils.py
 src/face_rec.egg-info/PKG-INFO
 src/face_rec.egg-info/SOURCES.txt
 src/face_rec.egg-info/dependency_links.txt

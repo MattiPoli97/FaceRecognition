@@ -16,6 +16,12 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 GREY = (230, 230, 230)
 BEIGE = (205,203, 192)
+Soft_Blue = (191, 219, 255)
+Soft_Pink = (255, 204, 229)
+Soft_Green = (204, 255, 204)
+Soft_Yellow = (255, 255, 204)
+Soft_Lavender = (230, 230, 255)
+Soft_red = (255, 139, 130)
 
 class Leaf:
     def __init__(self, x, y, size, SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -61,7 +67,7 @@ class Button:
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
         self.text = text
-        self.font = pygame.font.Font(None, 70)
+        self.font = pygame.font.Font('./Comfortaa/Comfortaa-Bold.ttf', 70)
 
     def draw(self, surface, writing_color):
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
@@ -78,13 +84,13 @@ class Button:
     def is_correct(self, position, index):
         return True if index == position else False
 class Button_with_icon:
-    def __init__(self, x, y, width, height, text=None, icon=None, font=None, font_size=70, color=(229, 193, 66, 128),
+    def __init__(self, x, y, width, height, text=None, icon=None, font='./Comfortaa/Comfortaa-Bold.ttf', font_size=70, color = None,
                  hover_color=(200, 200, 200, 128)):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.icon = icon
         self.font = pygame.font.Font(font, font_size) if font else pygame.font.SysFont(None, font_size)
-        self.color = color
+        self.color = color if color else (229, 193, 66, 128)
         self.hover_color = hover_color
 
     def draw(self, surface):
@@ -102,7 +108,7 @@ class Button_with_icon:
 
         if self.text is not None:
             text_surface = self.font.render(self.text, True, (0, 0, 0))
-            text_rect = text_surface.get_rect(midleft=(self.rect.centerx, self.rect.centery))
+            text_rect = text_surface.get_rect(center=(self.rect.centerx + icon_surface.get_width()//2, self.rect.centery))
             surface.blit(text_surface, text_rect)
 
     def is_clicked(self, pos):
@@ -124,7 +130,7 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
     # Load the text if needed
     if display_text:
 
-        font = pygame.font.SysFont(None, 100)
+        font = pygame.font.SysFont('./Comfortaa/Comfortaa-Regular.ttf', 100)
         text_surface = font.render(text, True, (255, 255, 255))
         text_width, text_height = text_surface.get_rect().size
         text_x = (SCREEN_WIDTH - text_width) // 2
