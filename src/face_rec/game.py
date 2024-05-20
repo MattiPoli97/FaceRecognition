@@ -36,13 +36,13 @@ class GameBase:
         # Buttons
         self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
                                         self.gameHeight // 12,
-                                        utils.Soft_Green, "Avanti")
+                                        utils.GREEN, "Avanti")
         self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
                                    self.gameHeight // 12,
-                                   utils.Soft_Lavender, "Ripeti")
+                                   utils.BLUE, "Ripeti")
         self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
                                         self.gameWidth // 32,
-                                        utils.Soft_red, "X")
+                                        utils.RED, "X")
         self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
                                                   self.gameWidth // 32, icon="./icons/icon_home.png")
 
@@ -144,7 +144,7 @@ class GameBase:
     def multiple_choice(self, image_path, start_time):
 
         self.goon_button.remove(self.screen)
-
+        utils.fade_out_sound(self.bg_sound, self.fading_time)
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         question_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6

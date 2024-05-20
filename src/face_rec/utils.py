@@ -129,8 +129,8 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
 
     # Load the text if needed
     if display_text:
-
-        font = pygame.font.SysFont('./Comfortaa/Comfortaa-Regular.ttf', 100)
+            
+        font = pygame.font.Font('./Comfortaa/Comfortaa-Regular.ttf', 100)
         text_surface = font.render(text, True, (255, 255, 255))
         text_width, text_height = text_surface.get_rect().size
         text_x = (SCREEN_WIDTH - text_width) // 2

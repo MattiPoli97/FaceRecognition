@@ -48,7 +48,7 @@ class Interface:
         self.button_r = utils.Button_with_icon(self.button_x_1, self.button_y_1, self.button_width, self.button_height, "Ricordiamo!",
                                           icon="./icons/icon_remember.png")
         self.exit_button = utils.Button(self.SCREEN_WIDTH // 45, self.SCREEN_WIDTH // 45, self.SCREEN_WIDTH // 16,
-                                             self.SCREEN_WIDTH // 32, utils.Soft_red, "X")
+                                             self.SCREEN_WIDTH // 32, utils.RED, "X")
         self.home_button = utils.Button_with_icon(self.SCREEN_WIDTH // 45, self.SCREEN_WIDTH // 16, self.SCREEN_WIDTH // 16,
                                              self.SCREEN_WIDTH // 32, icon="./icons/icon_home.png")
 
