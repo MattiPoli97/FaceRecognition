@@ -1,4 +1,5 @@
 import pygame
+import pygame.gfxdraw
 import cv2
 import random
 import datetime
@@ -10,6 +11,7 @@ import pyttsx3
 # colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+WHITE_4D = (255, 255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -67,7 +69,7 @@ class Button:
         self.rect = pygame.Rect(x, y, width, height)
         self.color = color
         self.text = text
-        self.font = pygame.font.Font('./Comfortaa/Comfortaa-Bold.ttf', 70)
+        self.font = pygame.font.Font('./Comfortaa/Comfortaa-Bold.ttf', 60)
 
     def draw(self, surface, writing_color):
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
@@ -131,7 +133,7 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
     if display_text:
             
         font = pygame.font.Font('./Comfortaa/Comfortaa-Regular.ttf', 100)
-        text_surface = font.render(text, True, (255, 255, 255))
+        text_surface = font.render(text, True, WHITE)
         text_width, text_height = text_surface.get_rect().size
         text_x = (SCREEN_WIDTH - text_width) // 2
 
@@ -289,3 +291,22 @@ def mantain_aspectratio(picture, windowWidth, windowHeight):
     scaled_width = int(original_width * scaling_factor)
     scaled_height = int(original_height * scaling_factor)
     return scaled_width, scaled_height
+
+def mask_roundedcorner(picture, radius):
+    # Create mask for rounded corners
+    width, height = picture.get_size()
+    mask_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+    mask_surface.fill((0, 0, 0, 0))
+
+    pygame.gfxdraw.filled_circle(mask_surface, radius, radius, radius, WHITE_4D)
+    pygame.gfxdraw.filled_circle(mask_surface, width - radius - 1, radius, radius, WHITE_4D)
+    pygame.gfxdraw.filled_circle(mask_surface, radius, height - radius - 1, radius, WHITE_4D)
+    pygame.gfxdraw.filled_circle(mask_surface, width - radius - 1, height - radius - 1, radius, WHITE_4D)
+
+    mask_surface.fill(WHITE_4D, rect=(radius, 0, width - 2 * radius, height))
+    mask_surface.fill(WHITE_4D, rect=(0, radius, width, height - 2 * radius))
+
+    result = pygame.Surface((width, height), pygame.SRCALPHA)
+    result.blit(picture, (0, 0))
+    result.blit(mask_surface, (0, 0), None, pygame.BLEND_RGBA_MIN)
+    return result

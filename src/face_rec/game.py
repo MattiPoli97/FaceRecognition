@@ -34,10 +34,10 @@ class GameBase:
         self.map_sizey = self.gameHeight // 2
 
         # Buttons
-        self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
+        self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 7,
                                         self.gameHeight // 12,
                                         utils.GREEN, "Avanti")
-        self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight * 11//12 - 10, self.gameWidth // 8,
+        self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight * 11//12 - 10, self.gameWidth // 7,
                                    self.gameHeight // 12,
                                    utils.BLUE, "Ripeti")
         self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
@@ -53,9 +53,10 @@ class GameBase:
 
     def enlarge_image(self, picture_path, size):
         self.screen.fill(utils.WHITE)
-        enlarged_picture = pygame.image.load(picture_path)
+        enlarged_picture = pygame.image.load(picture_path).convert_alpha()
         enlarged_picture = pygame.transform.scale(enlarged_picture, size)
-        img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4 + 50, self.gameHeight // 2))
+        enlarged_picture = utils.mask_roundedcorner(enlarged_picture, radius=20)
+        img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4, self.gameHeight // 2))
         self.screen.blit(enlarged_picture, img_rect)
         self.goon_button.draw(self.screen, utils.WHITE)
         self.repeat.draw(self.screen, utils.WHITE)
@@ -71,9 +72,9 @@ class GameBase:
         # lateral message
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
-        music_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
+        music_x = self.gameWidth * 3//4 - rect_width//2
         music_y = (self.gameHeight - rect_height) // 4
-        text_music = "Riconosci questa canzone?"
+        text_music = "Riconosci la canzone?"
         complete = utils.Button(music_x, music_y, rect_width, rect_height, utils.WHITE, text_music)
         complete.draw(self.screen, utils.BLACK)
 
@@ -99,9 +100,9 @@ class GameBase:
     def proverb_scene(self, image_path, start_time):
         # lateral message
         utils.fade_out_sound(self.bg_sound, self.fading_time)
-        rect_width = self.gameWidth // 3
+        rect_width = self.gameWidth // 2.2
         rect_height = self.gameHeight // 6
-        proverb_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
+        proverb_x = self.gameWidth * 3//4 - rect_width//2
         complete_y = (self.gameHeight - rect_height) // 3
         text_complete = "Completa il proverbio"
         complete = utils.Button(proverb_x, complete_y, rect_width, rect_height, utils.WHITE, text_complete)
@@ -113,7 +114,7 @@ class GameBase:
         self.proverb = utils.Button(proverb_x, proverb_y, rect_width, rect_height, utils.GREY, first_part)
         self.proverb.draw(self.screen, utils.BLACK)
         # button for showing the solution
-        solution_b = utils.Button(proverb_x, self.gameHeight - rect_height, self.gameWidth // 8, self.gameWidth // 20,
+        solution_b = utils.Button(proverb_x, self.gameHeight - rect_height, self.gameWidth // 4, self.gameWidth // 20,
                                   utils.YELLOW, "Soluzione")
         solution_b.draw(self.screen, utils.BLACK)
         last_words = image_path.split()[len(image_path.split()) // 2 + 1:]
@@ -133,6 +134,7 @@ class GameBase:
                         utils.text_sound("complete_proverb.mp3")
                         utils.read(first_part)
                     if solution_b.is_clicked(pygame.mouse.get_pos()):
+                        solution_b.remove(self.screen)
                         solution.draw(self.screen, utils.BLACK)
                         pygame.display.update()
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
@@ -277,9 +279,11 @@ class MemoryGame(GameBase):
         self.memPics = []
         self.memPicsRect = []
         self.hiddenImages = []
+
         for item in self.memoryPictures:
-            picture = pygame.image.load(item)
+            picture = pygame.image.load(item).convert_alpha()
             picture = pygame.transform.scale(picture, (self.picSize, self.picSize))
+            picture = utils.mask_roundedcorner(picture, radius=20)
             self.memPics.append(picture)
 
         for i in range(self.gameRows):
@@ -408,7 +412,7 @@ class FotoFlow(GameBase):
                 x_pos = (flow_scroll_x + i * self.scaled_width) % total_width
                 self.screen.blit(image, (x_pos, 0))
                 if x_pos > self.gameWidth - self.scaled_width:
-                    selfx.screen.blit(image, (x_pos - total_width, 0))
+                    self.screen.blit(image, (x_pos - total_width, 0))
 
             self.exit_button.draw(self.screen, utils.WHITE)
             self.home_button.draw(self.screen)

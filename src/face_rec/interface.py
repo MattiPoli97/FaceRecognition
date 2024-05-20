@@ -75,7 +75,7 @@ class Interface:
                     background_index = 0
                     background_alpha = 255  # Initial alpha value for fading
                     background_scroll_x = 0
-                    background_scroll_speed = 2
+                    background_scroll_speed = 2.5
 
                     running_1 = True
                     scrolling_enabled = True
