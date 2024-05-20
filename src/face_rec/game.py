@@ -297,7 +297,7 @@ class MemoryGame(GameBase):
         gameLoop = True
 
         while gameLoop:
-            color_bg = (225,229,233)
+            color_bg = (227, 218, 201)
             self.screen.fill(color_bg)
             #self.screen.blit(self.bgImage, self.bgImageRect)
             self.exit_button.draw(self.screen, utils.WHITE)
