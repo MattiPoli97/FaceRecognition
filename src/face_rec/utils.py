@@ -33,8 +33,8 @@ class Leaf:
         self.leaf = pygame.transform.scale(pygame.image.load("leaf.png"), (self.size, self.size))
         self.x = x
         self.y = y
-        self.speed_x = random.randint(-3, 3)
-        self.speed_y = random.randint(-3, 3)
+        self.speed_x = random.randint(-SCREEN_WIDTH//250, SCREEN_WIDTH//250)
+        self.speed_y = random.randint(-SCREEN_WIDTH//250, SCREEN_WIDTH//250)
         if self.speed_x == 0 and self.speed_y == 0:
             self.speed_y = 1
             self.speed_x = 1
@@ -96,6 +96,7 @@ class Button_with_icon:
         self.hover_color = hover_color
 
     def draw(self, surface):
+
         # Draw the rectangle with anti-aliasing
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
 

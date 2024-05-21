@@ -34,22 +34,26 @@ class GameBase:
         self.map_sizey = self.gameHeight // 2
 
         # Buttons
+        self.top_width = self.gameWidth // 16
+        self.top_height = self.gameWidth // 16
+        self.y_top = self.gameWidth // 45
+        self.x_home = self.gameWidth // 45
+        self.x_exit = self.gameWidth - self.gameWidth // 45 - self.top_width
+
         self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 7,
                                         self.gameHeight // 12,
                                         utils.GREEN, "Avanti")
         self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight * 11//12 - 10, self.gameWidth // 7,
                                    self.gameHeight // 12,
                                    utils.BLUE, "Ripeti")
-        self.exit_button = utils.Button(self.gameWidth // 45, self.gameWidth // 45, self.gameWidth // 16,
-                                        self.gameWidth // 32,
-                                        utils.RED, "X")
-        self.home_button = utils.Button_with_icon(self.gameWidth // 45, self.gameWidth // 16, self.gameWidth // 16,
-                                                  self.gameWidth // 32, icon="./icons/icon_home.png")
+        self.exit_button = utils.Button(self.x_exit, self.y_top, self.top_width, self.top_height, utils.RED, "X")
+        self.home_button = utils.Button_with_icon(self.x_home, self.y_top, self.top_width, self.top_height,
+                                                  icon="./icons/icon_home.png")
 
     def setup_screen(self):
-        self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        pygame.display.set_caption('Memory Game' if isinstance(self, MemoryGame) else 'Foto Flow')
-        self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
+            self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            pygame.display.set_caption('Memory Game' if isinstance(self, MemoryGame) else 'Foto Flow')
+            self.gameWidth, self.gameHeight = self.screen.get_width(), self.screen.get_height()
 
     def enlarge_image(self, picture_path, size):
         self.screen.fill(utils.WHITE)
@@ -195,7 +199,7 @@ class GameBase:
                     for i, option_button in enumerate(self.option_buttons):
                         if option_button.is_clicked(pygame.mouse.get_pos()):
                             if option_button.is_correct(i, right_index):
-                                option_button.color = utils.Soft_Green
+                                option_button.color = (2, 192, 43)
                                 correct_answer_given = True
                             else:
                                 option_button.color = utils.Soft_red
@@ -301,9 +305,7 @@ class MemoryGame(GameBase):
         gameLoop = True
 
         while gameLoop:
-            color_bg = (227, 218, 201)
-            self.screen.fill(color_bg)
-            #self.screen.blit(self.bgImage, self.bgImageRect)
+            self.screen.fill(utils.Soft_Green)
             self.exit_button.draw(self.screen, utils.WHITE)
             self.home_button.draw(self.screen)
 
@@ -401,7 +403,7 @@ class FotoFlow(GameBase):
     def play(self):
         flow_alpha = 255  # Initial alpha value for fading
         flow_scroll_x = 0
-        flow_scroll_speed = 2
+        flow_scroll_speed = self.gameWidth//250
 
         running = True
         scrolling_enabled = True

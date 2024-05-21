@@ -36,21 +36,31 @@ class Interface:
             self.leaves.append(ball)
 
         # Button parameters
+        self.top_width = self.SCREEN_WIDTH // 16
+        self.top_height = self.SCREEN_WIDTH // 16
+        self.y_top = self.SCREEN_WIDTH // 45
+        self.x_home = self.SCREEN_WIDTH // 45
+        self.x_exit = self.SCREEN_WIDTH - self.SCREEN_WIDTH // 45 - self.top_width
+
         self.button_width = self.SCREEN_WIDTH // 2.5
         self.button_height = self.SCREEN_HEIGHT // 6
-        self.button_x = (self.SCREEN_WIDTH - self.button_width) // 4 - self.SCREEN_WIDTH // 16
-        self.button_y = self.SCREEN_HEIGHT // 6
-        self.button_x_1 = 3 * (self.SCREEN_WIDTH - self.button_width) // 4 + self.SCREEN_WIDTH // 16
-        self.button_y_1 = self.button_y + self.SCREEN_HEIGHT // 2
+        self.button_x_l = self.SCREEN_WIDTH//4 - self.button_width//2
+        self.button_x_r = self.SCREEN_WIDTH * 3//4 - self.button_width//2
+        self.button_y = self.SCREEN_HEIGHT // 2
 
-        self.button_l = utils.Button_with_icon(self.button_x, self.button_y, self.button_width, self.button_height, "Giochiamo!",
+        title = "Cosa vuoi fare oggi?"
+        self.title_width = self.SCREEN_WIDTH//2
+        self.x_title = self.SCREEN_WIDTH//2 - self.title_width//2
+
+        self.button_l = utils.Button_with_icon(self.button_x_l, self.button_y, self.button_width, self.button_height, "Giochiamo!",
                                           icon="./icons/icon_game.png")
-        self.button_r = utils.Button_with_icon(self.button_x_1, self.button_y_1, self.button_width, self.button_height, "Ricordiamo!",
+        self.button_r = utils.Button_with_icon(self.button_x_r, self.button_y, self.button_width, self.button_height, "Ricordiamo!",
                                           icon="./icons/icon_remember.png")
-        self.exit_button = utils.Button(self.SCREEN_WIDTH // 45, self.SCREEN_WIDTH // 45, self.SCREEN_WIDTH // 16,
-                                             self.SCREEN_WIDTH // 32, utils.RED, "X")
-        self.home_button = utils.Button_with_icon(self.SCREEN_WIDTH // 45, self.SCREEN_WIDTH // 16, self.SCREEN_WIDTH // 16,
-                                             self.SCREEN_WIDTH // 32, icon="./icons/icon_home.png")
+
+        self.exit_button = utils.Button(self.x_exit, self.y_top, self.top_width, self.top_height, utils.RED, "X")
+        self.home_button = utils.Button_with_icon(self.x_home, self.y_top, self.top_width, self.top_height, icon="./icons/icon_home.png")
+
+        self.button_title = utils.Button(self.x_title, self.y_top, self.title_width, self.button_height, utils.WHITE, title)
 
     def run(self):
         running = True
@@ -103,12 +113,12 @@ class Interface:
                         for event in pygame.event.get():
                             if event.type == pygame.MOUSEBUTTONDOWN and not game_started:
                                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                                if (self.button_x <= mouse_x <= self.button_x + self.button_width
+                                if (self.button_x_l <= mouse_x <= self.button_x_l + self.button_width
                                         and self.button_y <= mouse_y <= self.button_y + self.button_height):
                                     game_started = True
                                     giochiamo = True
-                                if (self.button_x_1 <= mouse_x <= self.button_x_1 + self.button_width
-                                        and self.button_y_1 <= mouse_y <= self.button_y_1 + self.button_height):
+                                if (self.button_x_r <= mouse_x <= self.button_x_r + self.button_width
+                                        and self.button_y <= mouse_y <= self.button_y + self.button_height):
                                     game_started = True
                                 if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                                     pygame.quit()
@@ -119,6 +129,7 @@ class Interface:
                         self.button_r.draw(self.screen)
                         self.exit_button.draw(self.screen, utils.WHITE)
                         self.home_button.draw(self.screen)
+                        self.button_title.draw(self.screen, utils.BLACK)
 
                         pygame.display.flip()
 
