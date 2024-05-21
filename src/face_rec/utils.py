@@ -254,8 +254,15 @@ def read(text):
     # Initialize the TTS engine
     engine = pyttsx3.init()
     # Set the speech rate (words per minute), default is 200
-    engine.setProperty('rate', 100)
-    engine.setProperty('pitch', 0.5)
+    voices = engine.getProperty('voices')
+
+    for voice in voices:
+        if "italian" == voice.name:
+            idx = voice.id
+        
+    engine.setProperty('voice', idx)
+    engine.setProperty('rate', 150)
+    #engine.setProperty('pitch', 0.5)
     # Use the TTS engine to read the provided text
     engine.say(text)
     engine.runAndWait()
