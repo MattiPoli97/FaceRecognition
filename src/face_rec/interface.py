@@ -52,15 +52,18 @@ class Interface:
         self.title_width = self.SCREEN_WIDTH//2
         self.x_title = self.SCREEN_WIDTH//2 - self.title_width//2
 
-        self.button_l = utils.Button_with_icon(self.button_x_l, self.button_y, self.button_width, self.button_height, "Giochiamo!",
-                                          icon="./icons/icon_game.png")
-        self.button_r = utils.Button_with_icon(self.button_x_r, self.button_y, self.button_width, self.button_height, "Ricordiamo!",
-                                          icon="./icons/icon_remember.png")
+        self.button_l = utils.Button(self.button_x_l, self.button_y, self.button_width, self.button_height,
+                                     text="Giochiamo!", icon="./icons/icon_game.png", font_size=70)
+        self.button_r = utils.Button(self.button_x_r, self.button_y, self.button_width, self.button_height,
+                                     text="Ricordiamo!", icon="./icons/icon_remember.png", font_size=70)
 
-        self.exit_button = utils.Button(self.x_exit, self.y_top, self.top_width, self.top_height, utils.RED, "X")
-        self.home_button = utils.Button_with_icon(self.x_home, self.y_top, self.top_width, self.top_height, icon="./icons/icon_home.png")
+        self.exit_button = utils.Button(self.x_exit, self.y_top, self.top_width, self.top_height,
+                                        color=utils.RED, text="X", text_color=utils.WHITE)
+        self.home_button = utils.Button(self.x_home, self.y_top, self.top_width, self.top_height,
+                                        icon="./icons/icon_home.png")
 
-        self.button_title = utils.Button(self.x_title, self.y_top, self.title_width, self.button_height, utils.WHITE, title)
+        self.button_title = utils.Button(self.x_title, self.y_top, self.title_width, self.button_height,
+                                         color=utils.WHITE, text=title)
 
     def run(self):
         running = True
@@ -127,11 +130,12 @@ class Interface:
 
                         self.button_l.draw(self.screen)
                         self.button_r.draw(self.screen)
-                        self.exit_button.draw(self.screen, utils.WHITE)
+                        self.exit_button.draw(self.screen)
                         self.home_button.draw(self.screen)
-                        self.button_title.draw(self.screen, utils.BLACK)
+                        self.button_title.draw(self.screen)
 
                         pygame.display.flip()
+                        #utils.text_sound("start_text.mp3")
 
                         pygame.time.Clock().tick(60)
 

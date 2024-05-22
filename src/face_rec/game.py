@@ -34,21 +34,27 @@ class GameBase:
         self.map_sizey = self.gameHeight // 2
 
         # Buttons
+        self.bottom_width = self.gameWidth // 5.5
+        self.bottom_height = self.gameHeight // 11
+        self.y_bottom = self.gameHeight * 11//12 - 10
+        self.x_goon = self.gameWidth//4 - self.bottom_width - 10
+        self.x_repeat = self.gameWidth//4 + 10
         self.top_width = self.gameWidth // 16
         self.top_height = self.gameWidth // 16
         self.y_top = self.gameWidth // 45
         self.x_home = self.gameWidth // 45
         self.x_exit = self.gameWidth - self.gameWidth // 45 - self.top_width
 
-        self.goon_button = utils.Button(self.gameWidth // 16, self.gameHeight * 11//12 - 10, self.gameWidth // 7,
-                                        self.gameHeight // 12,
-                                        utils.GREEN, "Avanti")
-        self.repeat = utils.Button(self.gameWidth // 4, self.gameHeight * 11//12 - 10, self.gameWidth // 7,
-                                   self.gameHeight // 12,
-                                   utils.BLUE, "Ripeti")
-        self.exit_button = utils.Button(self.x_exit, self.y_top, self.top_width, self.top_height, utils.RED, "X")
-        self.home_button = utils.Button_with_icon(self.x_home, self.y_top, self.top_width, self.top_height,
-                                                  icon="./icons/icon_home.png")
+        self.goon_button = utils.Button(self.x_goon, self.y_bottom,
+                                        self.bottom_width, self.bottom_height,
+                                        color=utils.Emerald_green, text="Avanti", icon="./icons/icon_avanti.png")
+        self.repeat = utils.Button(self.x_repeat, self.y_bottom,
+                                   self.bottom_width, self.bottom_height,
+                                   color=utils.Sky_blue, text="Ripeti", icon="./icons/icon_repeat.png")
+        self.exit_button = utils.Button(self.x_exit, self.y_top, self.top_width, self.top_height,
+                                        color=utils.RED, text="X", text_color=utils.WHITE)
+        self.home_button = utils.Button(self.x_home, self.y_top, self.top_width, self.top_height,
+                                        icon="./icons/icon_home.png")
 
     def setup_screen(self):
             self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -62,8 +68,8 @@ class GameBase:
         enlarged_picture = utils.mask_roundedcorner(enlarged_picture, radius=20)
         img_rect = enlarged_picture.get_rect(center=(self.gameWidth // 4, self.gameHeight // 2))
         self.screen.blit(enlarged_picture, img_rect)
-        self.goon_button.draw(self.screen, utils.WHITE)
-        self.repeat.draw(self.screen, utils.WHITE)
+        self.goon_button.draw(self.screen)
+        self.repeat.draw(self.screen)
 
     def music_scene(self, start_time):
         # play the music
@@ -73,14 +79,24 @@ class GameBase:
 
         self.repeat.remove(self.screen)
 
-        # lateral message
         rect_width = self.gameWidth // 3
         rect_height = self.gameHeight // 6
         music_x = self.gameWidth * 3//4 - rect_width//2
-        music_y = (self.gameHeight - rect_height) // 4
+        music_y = self.gameHeight // 7 - rect_height//2
+        y_sol = self.gameHeight - rect_height
+        self.sol_width = self.gameWidth // 4
+        self.sol_height = self.gameHeight // 11
         text_music = "Riconosci la canzone?"
-        complete = utils.Button(music_x, music_y, rect_width, rect_height, utils.WHITE, text_music)
-        complete.draw(self.screen, utils.BLACK)
+
+        complete = utils.Button(music_x, music_y, rect_width, rect_height, text=text_music,
+                                color=utils.WHITE, hover_color=utils.WHITE)
+        solution_b = utils.Button(music_x, y_sol, self.sol_width, self.sol_height,
+                                  color=utils.YELLOW, text="Soluzione", icon="./icons/icon_help.png")
+        solution = utils.Button(music_x, y_sol, rect_width, rect_height, text="titolo canzone",
+                                color=utils.WHITE, hover_color=utils.WHITE)
+
+        complete.draw(self.screen)
+        solution_b.draw(self.screen)
 
         pygame.display.update()
         utils.text_sound("music_text.mp3")
@@ -94,6 +110,10 @@ class GameBase:
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    if solution_b.is_clicked(pygame.mouse.get_pos()):
+                        solution_b.remove(self.screen)
+                        solution.draw(self.screen)
+                        pygame.display.update()
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
 
@@ -102,29 +122,36 @@ class GameBase:
         self.bg_sound.play()
 
     def proverb_scene(self, image_path, start_time):
-        # lateral message
+
         utils.fade_out_sound(self.bg_sound, self.fading_time)
+
         rect_width = self.gameWidth // 2.2
         rect_height = self.gameHeight // 6
-        proverb_x = self.gameWidth * 3//4 - rect_width//2
-        complete_y = (self.gameHeight - rect_height) // 3
+        x_right = self.gameWidth * 3//4 - rect_width//2
+        y_1 = (self.gameHeight - rect_height) // 3
+        y_2 = (self.gameHeight - rect_height) * 2//3
+        y_3 = self.gameHeight - rect_height
+        y_4 = self.gameHeight - rect_height -20
+
         text_complete = "Completa il proverbio"
-        complete = utils.Button(proverb_x, complete_y, rect_width, rect_height, utils.WHITE, text_complete)
-        complete.draw(self.screen, utils.BLACK)
-        # proverbio
-        proverb_y = (self.gameHeight - rect_height) * 2 // 3
         first_words = image_path.split()[:len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
         first_part = ' '.join(first_words) + ' ...'  # concatenate the words followed by ...
-        self.proverb = utils.Button(proverb_x, proverb_y, rect_width, rect_height, utils.GREY, first_part)
-        self.proverb.draw(self.screen, utils.BLACK)
-        # button for showing the solution
-        solution_b = utils.Button(proverb_x, self.gameHeight - rect_height, self.gameWidth // 4, self.gameWidth // 20,
-                                  utils.YELLOW, "Soluzione")
-        solution_b.draw(self.screen, utils.BLACK)
         last_words = image_path.split()[len(image_path.split()) // 2 + 1:]
         last_part = ' '.join(last_words)
-        solution_y = self.gameHeight - rect_height -20
-        solution = utils.Button(proverb_x, solution_y, rect_width, rect_height, utils.GREY, last_part)
+
+        complete = utils.Button(x_right, y_1, rect_width, rect_height, text=text_complete,
+                                color=utils.WHITE, hover_color=utils.WHITE)
+        proverb = utils.Button(x_right, y_2, rect_width, rect_height, text=first_part,
+                                    color=utils.GREY, hover_color=utils.GREY)
+        solution_b = utils.Button(x_right, y_3, self.sol_width, self.sol_height,
+                                  color=utils.YELLOW, text="Soluzione", icon="./icons/icon_help.png")
+        solution = utils.Button(x_right, y_4, rect_width, rect_height,
+                                color=utils.GREY, text=last_part, hover_color=utils.GREY)
+
+
+        complete.draw(self.screen)
+        proverb.draw(self.screen)
+        solution_b.draw(self.screen)
 
         pygame.display.update()
         utils.text_sound("complete_proverb.mp3")
@@ -139,7 +166,7 @@ class GameBase:
                         utils.read(first_part)
                     if solution_b.is_clicked(pygame.mouse.get_pos()):
                         solution_b.remove(self.screen)
-                        solution.draw(self.screen, utils.BLACK)
+                        solution.draw(self.screen)
                         pygame.display.update()
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
@@ -156,15 +183,16 @@ class GameBase:
         question_x = (self.gameWidth - rect_width) * 3 // 4 + self.gameHeight // 6
         question_y = (self.gameHeight - rect_height) // 8
         text_question = "Che cosa vedi?"
-        self.question = utils.Button(question_x, question_y, rect_width, rect_height, utils.WHITE, text_question)
-        self.question.draw(self.screen, utils.BLACK)
+        self.question = utils.Button(question_x, question_y, rect_width, rect_height,
+                                     color=utils.WHITE, text=text_question, hover_color=utils.WHITE)
+        self.question.draw(self.screen)
 
         # list of the names of plants for options
         file_path = "plant_names.xlsx"
 
         df = pd.read_excel(file_path)
         plants_column = df['Plants']
-        plant_names = [plant.capitalize() for plant in plants_column.tolist()]  # Convert the excel file to a list, first letter uppercase
+        plant_names = [plant.capitalize() for plant in plants_column.tolist()]  # Convert the excel file to a list
         stemcapitalized = image_path.capitalize()  # Make sure that stem is uppercase
         # extract the right name from this list and 2 other random names
         plant_names.remove(stemcapitalized)
@@ -177,9 +205,10 @@ class GameBase:
         self.option_buttons = []
         for i, option_text in enumerate(options):
             option_y = (self.gameHeight - rect_height) * (2*i + 3) // 8
-            option_button = utils.Button(question_x, option_y, rect_width, rect_height, utils.GREY, option_text)
+            option_button = utils.Button(question_x, option_y, rect_width, rect_height,
+                                         color=utils.GREY, text=option_text)
             self.option_buttons.append(option_button)
-            option_button.draw(self.screen, utils.BLACK)
+            option_button.draw(self.screen)
 
         right_index = options.index(stemcapitalized)
         correct_answer_given = False
@@ -199,19 +228,19 @@ class GameBase:
                     for i, option_button in enumerate(self.option_buttons):
                         if option_button.is_clicked(pygame.mouse.get_pos()):
                             if option_button.is_correct(i, right_index):
-                                option_button.color = (2, 192, 43)
+                                option_button.color = utils.Emerald_green
                                 correct_answer_given = True
                             else:
                                 option_button.color = utils.Soft_red
-                            option_button.draw(self.screen, utils.BLACK)
+                            option_button.draw(self.screen)
                             pygame.display.update()
 
     def task_managing(self, image_path, start_time, size):
 
         self.screen.fill(utils.WHITE)
         # redraw buttons
-        self.goon_button.draw(self.screen, utils.WHITE)
-        self.repeat.draw(self.screen, utils.WHITE)
+        self.goon_button.draw(self.screen)
+        self.repeat.draw(self.screen)
         # draw the map picture
         map_pictures = os.listdir("image_tasks")
         for item in map_pictures:
@@ -231,10 +260,10 @@ class GameBase:
         y2 = self.gameHeight * 3 // 4
         text1 = "Andate qui:"
         text2 = "Tocca, annusa e assaggia ... che cosa provi?"
-        explanation1 = utils.Button(x, y1, self.gameWidth, 50, utils.WHITE, text1)
-        explanation2 = utils.Button(x, y2, self.gameWidth, 50, utils.WHITE, text2)
-        explanation1.draw(self.screen, utils.BLACK)
-        explanation2.draw(self.screen, utils.BLACK)
+        explanation1 = utils.Button(x, y1, self.gameWidth, 50, color=utils.WHITE, text=text1)
+        explanation2 = utils.Button(x, y2, self.gameWidth, 50, color=utils.WHITE, text=text2)
+        explanation1.draw(self.screen)
+        explanation2.draw(self.screen)
         pygame.display.update()
         utils.text_sound("task_1.mp3")
         utils.text_sound("task_2.mp3")
@@ -306,7 +335,7 @@ class MemoryGame(GameBase):
 
         while gameLoop:
             self.screen.fill(utils.Soft_Green)
-            self.exit_button.draw(self.screen, utils.WHITE)
+            self.exit_button.draw(self.screen)
             self.home_button.draw(self.screen)
 
             self.enlarged_image = True
@@ -416,7 +445,7 @@ class FotoFlow(GameBase):
                 if x_pos > self.gameWidth - self.scaled_width:
                     self.screen.blit(image, (x_pos - total_width, 0))
 
-            self.exit_button.draw(self.screen, utils.WHITE)
+            self.exit_button.draw(self.screen)
             self.home_button.draw(self.screen)
 
             fade_surface = pygame.Surface((self.gameWidth, self.gameHeight))

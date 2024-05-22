@@ -24,6 +24,8 @@ Soft_Green = (204, 255, 204)
 Soft_Yellow = (255, 255, 204)
 Soft_Lavender = (230, 230, 255)
 Soft_red = (255, 139, 130)
+Sky_blue = (99, 197, 218)
+Emerald_green = (2, 192, 43)
 
 class Leaf:
     def __init__(self, x, y, size, SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -64,35 +66,16 @@ class Leaf:
         rect = rotated_leaf.get_rect(center=(self.x, self.y))
 
         screen.blit(rotated_leaf, rect.topleft)
+
 class Button:
-    def __init__(self, x, y, width, height, color, text=''):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.color = color
-        self.text = text
-        self.font = pygame.font.Font('./Comfortaa/Comfortaa-Bold.ttf', 60)
-
-    def draw(self, surface, writing_color):
-        pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
-        text_surface = self.font.render(self.text, True, writing_color)
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        surface.blit(text_surface, text_rect)
-
-    def remove(self, surface):
-        pygame.draw.rect(surface, WHITE, self.rect, border_radius=20)
-
-    def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
-
-    def is_correct(self, position, index):
-        return True if index == position else False
-class Button_with_icon:
-    def __init__(self, x, y, width, height, text=None, icon=None, font='./Comfortaa/Comfortaa-Bold.ttf', font_size=70, color = None,
-                 hover_color=(200, 200, 200, 128)):
+    def __init__(self, x, y, width, height, text=None, icon=None, font='./Comfortaa/Comfortaa-Bold.ttf', font_size=60,
+                 color=None, text_color=BLACK, hover_color=(200, 200, 200, 128)):
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.icon = icon
         self.font = pygame.font.Font(font, font_size) if font else pygame.font.SysFont(None, font_size)
         self.color = color if color else (229, 193, 66, 128)
+        self.text_color = text_color
         self.hover_color = hover_color
 
     def draw(self, surface):
@@ -109,11 +92,18 @@ class Button_with_icon:
             icon_rect = icon_surface.get_rect(topleft=(self.rect.x, self.rect.y)) if self.text is not None else icon_surface.get_rect(center=self.rect.center)
             surface.blit(icon_surface, icon_rect)
 
-        if self.text is not None:
-            text_surface = self.font.render(self.text, True, (0, 0, 0))
-            text_rect = text_surface.get_rect(center=(self.rect.centerx + icon_surface.get_width()//2, self.rect.centery))
-            surface.blit(text_surface, text_rect)
+            if self.text is not None:
+                text_surface = self.font.render(self.text, True, self.text_color)
+                text_rect = text_surface.get_rect(center=(self.rect.centerx + icon_surface.get_width()//2, self.rect.centery))
+                surface.blit(text_surface, text_rect)
+        else:
+            if self.text is not None:
+                text_surface = self.font.render(self.text, True, self.text_color)
+                text_rect = text_surface.get_rect(center=self.rect.center)
+                surface.blit(text_surface, text_rect)
 
+    def remove(self, surface):
+        pygame.draw.rect(surface, WHITE, self.rect, border_radius=20)
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
@@ -171,9 +161,9 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
         frame_w, frame_h = frames[0].get_width(), frames[0].get_height()
 
         if folder == "./frames_dancing_avatar":
-            screen.blit(frames[frame_index], (SCREEN_WIDTH * 3//4 - frame_w//2, SCREEN_HEIGHT* 3//4 - frame_h//2))
+            screen.blit(frames[frame_index], (SCREEN_WIDTH * 3//4 - frame_w//2, SCREEN_HEIGHT//7))
         else:
-            screen.blit(frames[frame_index], (SCREEN_WIDTH//2 - frame_w//2, SCREEN_HEIGHT - frame_h))
+            screen.blit(frames[frame_index], (SCREEN_WIDTH//2 - frame_w//2, SCREEN_HEIGHT - frame_h - 10))
         pygame.display.flip()
         clock.tick(30)
 
@@ -253,7 +243,6 @@ def detect_face(cam, model, bg_sound, image_folder, music_folder, giochiamo):
 def read(text):
     # Initialize the TTS engine
     engine = pyttsx3.init()
-    # Set the speech rate (words per minute), default is 200
     voices = engine.getProperty('voices')
 
     for voice in voices:
@@ -261,7 +250,7 @@ def read(text):
             idx = voice.id
         
     engine.setProperty('voice', idx)
-    engine.setProperty('rate', 150)
+    engine.setProperty('rate', 150) # Set the speech rate (words per minute), default is 200
     #engine.setProperty('pitch', 0.5)
     # Use the TTS engine to read the provided text
     engine.say(text)
