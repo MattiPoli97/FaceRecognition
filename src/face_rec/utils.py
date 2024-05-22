@@ -7,6 +7,7 @@ import time
 from face_rec import game
 import os
 import pyttsx3
+import math
 
 # colors
 BLACK = (0, 0, 0)
@@ -24,6 +25,7 @@ Soft_Green = (204, 255, 204)
 Soft_Yellow = (255, 255, 204)
 Soft_Lavender = (230, 230, 255)
 Soft_red = (255, 139, 130)
+Lava_red = (206, 16, 33)
 
 class Leaf:
     def __init__(self, x, y, size, SCREEN_WIDTH, SCREEN_HEIGHT):
@@ -88,15 +90,24 @@ class Button:
 class Button_with_icon:
     def __init__(self, x, y, width, height, text=None, icon=None, font='./Comfortaa/Comfortaa-Bold.ttf', font_size=70, color = None,
                  hover_color=(200, 200, 200, 128)):
-        self.rect = pygame.Rect(x, y, width, height)
+        self.base_rect = pygame.Rect(x, y, width, height) 
+        self.rect = self.base_rect.copy()
         self.text = text
         self.icon = icon
         self.font = pygame.font.Font(font, font_size) if font else pygame.font.SysFont(None, font_size)
         self.color = color if color else (229, 193, 66, 128)
         self.hover_color = hover_color
+        self.start_time = time.time()
 
     def draw(self, surface):
-
+        elapsed_time = time.time() - self.start_time
+        scale_factor = 1 + 0.05 *math.sin(elapsed_time * 2* math.pi)
+        
+        new_width = int(self.base_rect.width * scale_factor)
+        new_height = int(self.base_rect.height * scale_factor)
+        self.rect.width = new_width
+        self.rect.height = new_height
+        self.rect.center = self.base_rect.center
         # Draw the rectangle with anti-aliasing
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
 
@@ -116,7 +127,7 @@ class Button_with_icon:
 
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
-
+        
 def play_video_from_images(folder, music_file, screen, display_text, goon_button: Button | None, text=None):
     clock = pygame.time.Clock()
 
