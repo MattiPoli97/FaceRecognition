@@ -7,6 +7,7 @@ import time
 from face_rec import game
 import os
 import pyttsx3
+from typing import Optional
 
 # colors
 BLACK = (0, 0, 0)
@@ -107,7 +108,8 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
-def play_video_from_images(folder, music_file, screen, display_text, goon_button: Button | None, text=None):
+def play_video_from_images(folder, music_file, screen, display_text, text=None, goon_button: Optional[Button] = None,
+                           solution_button: Optional[Button] = None, solution: Optional[Button] = None):
     clock = pygame.time.Clock()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
@@ -146,6 +148,10 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
     while running:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if solution_button is not None and solution is not None and solution_button.is_clicked(pygame.mouse.get_pos()):
+                    solution_button.remove(screen)
+                    solution.draw(screen)
+                    pygame.display.update()
                 if goon_button is not None and goon_button.is_clicked(pygame.mouse.get_pos()):
                     pygame.mixer.music.fadeout(5000)
                     return
@@ -161,7 +167,7 @@ def play_video_from_images(folder, music_file, screen, display_text, goon_button
         frame_w, frame_h = frames[0].get_width(), frames[0].get_height()
 
         if folder == "./frames_dancing_avatar":
-            screen.blit(frames[frame_index], (SCREEN_WIDTH * 3//4 - frame_w//2, SCREEN_HEIGHT//7))
+            screen.blit(frames[frame_index], (SCREEN_WIDTH * 3//4 - frame_w//2, SCREEN_HEIGHT//7 + 30))
         else:
             screen.blit(frames[frame_index], (SCREEN_WIDTH//2 - frame_w//2, SCREEN_HEIGHT - frame_h - 10))
         pygame.display.flip()

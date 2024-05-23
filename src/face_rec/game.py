@@ -44,6 +44,8 @@ class GameBase:
         self.y_top = self.gameWidth // 45
         self.x_home = self.gameWidth // 45
         self.x_exit = self.gameWidth - self.gameWidth // 45 - self.top_width
+        self.sol_width = self.gameWidth // 4
+        self.sol_height = self.gameHeight // 11
 
         self.goon_button = utils.Button(self.x_goon, self.y_bottom,
                                         self.bottom_width, self.bottom_height,
@@ -83,17 +85,18 @@ class GameBase:
         rect_height = self.gameHeight // 6
         music_x = self.gameWidth * 3//4 - rect_width//2
         music_y = self.gameHeight // 7 - rect_height//2
+        y_solb = self.gameHeight - self.sol_height - 10
         y_sol = self.gameHeight - rect_height
-        self.sol_width = self.gameWidth // 4
-        self.sol_height = self.gameHeight // 11
+
         text_music = "Riconosci la canzone?"
+        music_path = Path(random_music_file).stem
 
         complete = utils.Button(music_x, music_y, rect_width, rect_height, text=text_music,
                                 color=utils.WHITE, hover_color=utils.WHITE)
-        solution_b = utils.Button(music_x, y_sol, self.sol_width, self.sol_height,
+        solution_b = utils.Button(music_x, y_solb, self.sol_width, self.sol_height,
                                   color=utils.YELLOW, text="Soluzione", icon="./icons/icon_help.png")
-        solution = utils.Button(music_x, y_sol, rect_width, rect_height, text="titolo canzone",
-                                color=utils.WHITE, hover_color=utils.WHITE)
+        solution = utils.Button(music_x, y_sol, rect_width, rect_height, text=music_path,
+                                color=utils.WHITE, hover_color=utils.WHITE, font_size=50)
 
         complete.draw(self.screen)
         solution_b.draw(self.screen)
@@ -104,16 +107,12 @@ class GameBase:
         while self.enlarged_image and (time.time() < start_time + self.max_time):
 
             utils.play_video_from_images("./frames_dancing_avatar", random_music_file, self.screen,
-                                         False, self.goon_button)
+                                         False, goon_button=self.goon_button, solution_button=solution_b, solution=solution)
             self.enlarged_image = False
             pygame.mixer.music.fadeout(self.fading_time)
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if solution_b.is_clicked(pygame.mouse.get_pos()):
-                        solution_b.remove(self.screen)
-                        solution.draw(self.screen)
-                        pygame.display.update()
                     if self.goon_button.is_clicked(pygame.mouse.get_pos()):
                         self.enlarged_image = False
 
@@ -400,7 +399,7 @@ class MemoryGame(GameBase):
             if win:
                 self.screen.fill(utils.BLACK)
                 utils.play_video_from_images("./frames_winning_avatar", "./avatar/win.mp4", self.screen,
-                                             True, None, "Complimenti! Alla prossima!")
+                                             True, "Complimenti! Alla prossima!")
                 self.finish_and_restart()
                 self.bg_sound.set_volume(0.2)
                 gameLoop = False

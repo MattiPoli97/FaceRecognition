@@ -150,7 +150,7 @@ class Interface:
                             self.bg_sound.set_volume(0.2)
 
                             utils.play_video_from_images(self.avatar, "./avatar/intro.mp4", self.screen,
-                                                         True, None,"Il giardino parlante ti dà il benvenuto!")
+                                                         True, "Il giardino parlante ti dà il benvenuto!")
                             self.bg_sound.set_volume(1)
                             game.main(input, self.model, self.images, self.music, self.bg_sound, giochiamo)
                             #cam = cv2.VideoCapture(0)
