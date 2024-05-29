@@ -109,7 +109,7 @@ class Button:
         return self.rect.collidepoint(pos)
 
 def play_video_from_images(folder, music_file, screen, display_text, text=None, goon_button: Optional[Button] = None,
-                           solution_button: Optional[Button] = None, solution: Optional[Button] = None):
+                           solution_button: Optional[Button] = None, solution1: Optional[Button] = None, solution2: Optional[Button] = None):
     clock = pygame.time.Clock()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = screen.get_width(), screen.get_height()
@@ -148,9 +148,11 @@ def play_video_from_images(folder, music_file, screen, display_text, text=None, 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if solution_button is not None and solution is not None and solution_button.is_clicked(pygame.mouse.get_pos()):
+                if (solution_button is not None and solution1 is not None and solution2 is not None
+                        and solution_button.is_clicked(pygame.mouse.get_pos())):
                     solution_button.remove(screen)
-                    solution.draw(screen)
+                    solution1.draw(screen)
+                    solution2.draw(screen)
                     pygame.display.update()
                 if goon_button is not None and goon_button.is_clicked(pygame.mouse.get_pos()):
                     pygame.mixer.music.fadeout(5000)

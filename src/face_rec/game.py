@@ -87,16 +87,20 @@ class GameBase:
         music_y = self.gameHeight // 7 - rect_height//2
         y_solb = self.gameHeight - self.sol_height - 10
         y_sol = self.gameHeight - rect_height
+        x_author = self.gameWidth//2 - rect_width//2
 
         text_music = "Riconosci la canzone?"
         music_path = Path(random_music_file).stem
+        author, song = map(str.strip, music_path.split('-'))
 
         complete = utils.Button(music_x, music_y, rect_width, rect_height, text=text_music,
                                 color=utils.WHITE, hover_color=utils.WHITE)
         solution_b = utils.Button(music_x, y_solb, self.sol_width, self.sol_height,
                                   color=utils.YELLOW, text="Soluzione", icon="./icons/icon_help.png")
-        solution = utils.Button(music_x, y_sol, rect_width, rect_height, text=music_path,
+        sol_author = utils.Button(x_author, y_sol, rect_width, rect_height, text=author,
                                 color=utils.WHITE, hover_color=utils.WHITE, font_size=50)
+        sol_song = utils.Button(music_x, y_sol, rect_width, rect_height, text=song,
+                                  color=utils.WHITE, hover_color=utils.WHITE, font_size=50)
 
         complete.draw(self.screen)
         solution_b.draw(self.screen)
@@ -107,7 +111,8 @@ class GameBase:
         while self.enlarged_image and (time.time() < start_time + self.max_time):
 
             utils.play_video_from_images("./frames_dancing_avatar", random_music_file, self.screen,
-                                         False, goon_button=self.goon_button, solution_button=solution_b, solution=solution)
+                                         False, goon_button=self.goon_button, solution_button=solution_b,
+                                         solution1=sol_author, solution2=sol_song)
             self.enlarged_image = False
             pygame.mixer.music.fadeout(self.fading_time)
 
