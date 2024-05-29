@@ -72,30 +72,32 @@ class Leaf:
 
 class Button:
     def __init__(self, x, y, width, height, text=None, icon=None, font='./Comfortaa/Comfortaa-Bold.ttf', font_size=60,
-                 color=None, text_color=BLACK, hover_color=(200, 200, 200, 128)):
-        self.rect = pygame.Rect(x, y, width, height)
+                 color=None, text_color=BLACK, moving=False):
+        self.base_rect = pygame.Rect(x, y, width, height)
+        self.rect = self.base_rect.copy()
         self.text = text
         self.icon = icon
         self.font = pygame.font.Font(font, font_size) if font else pygame.font.SysFont(None, font_size)
         self.color = color if color else (229, 193, 66, 128)
         self.text_color = text_color
-        self.hover_color = hover_color
         self.start_time = time.time()
+        self.moving = moving
 
     def draw(self, surface):
-        elapsed_time = time.time() - self.start_time
-        scale_factor = 1 + 0.05 *math.sin(elapsed_time * 2* math.pi)
-        
-        new_width = int(self.base_rect.width * scale_factor)
-        new_height = int(self.base_rect.height * scale_factor)
-        self.rect.width = new_width
-        self.rect.height = new_height
-        self.rect.center = self.base_rect.center
+        if self.moving:
+            elapsed_time = time.time() - self.start_time
+            scale_factor = 1 + 0.05 *math.sin(elapsed_time * 2* math.pi)
+            
+            new_width = int(self.base_rect.width * scale_factor)
+            new_height = int(self.base_rect.height * scale_factor)
+            self.rect.width = new_width
+            self.rect.height = new_height
+            self.rect.center = self.base_rect.center
         # Draw the rectangle with anti-aliasing
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
 
         if self.rect.collidepoint(pygame.mouse.get_pos()):
-            pygame.draw.rect(surface, self.hover_color, self.rect, border_radius=20)
+            pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
 
         if self.icon:
             icon_surface = pygame.image.load(self.icon).convert_alpha()
@@ -115,6 +117,9 @@ class Button:
 
     def remove(self, surface):
         pygame.draw.rect(surface, WHITE, self.rect, border_radius=20)
+
+    def is_correct(self, position, index):
+        return True if index==position else False
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
