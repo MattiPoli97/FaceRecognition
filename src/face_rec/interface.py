@@ -6,6 +6,7 @@ import sys
 import time
 from pathlib import Path
 import pandas as pd
+import cv2
 
 leaves_running = True
 pygame.init()
@@ -59,7 +60,9 @@ button_title = utils.Button(x_title, y_top, title_width, button_height,
                                          color=utils.WHITE, text=title)
 
 def main(avatar, model, images, music):
-        
+
+    cam = cv2.VideoCapture(0)
+
     while leaves_running:
         screen.fill(random_bg_color)
 
@@ -69,8 +72,13 @@ def main(avatar, model, images, music):
 
         pygame.display.update()
 
+        detection = utils.detect_face(cam)
+        if detection:
+            cam.release()
+            cv2.destroyAllWindows()
+
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN or detection:
                 screen.fill(utils.BLACK)
                 bg_sound.set_volume(0.2)
 
@@ -289,7 +297,7 @@ class GameBase:
         y_1 = (self.gameHeight - rect_height) // 3
         y_2 = (self.gameHeight - rect_height) * 2//3
         y_3 = self.gameHeight - rect_height
-        y_4 = self.gameHeight - rect_height -V20
+        y_4 = self.gameHeight - rect_height - 20
 
         text_complete = "Completa il proverbio"
         first_words = image_path.split()[:len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
@@ -526,6 +534,7 @@ class MemoryGame(GameBase):
                     self.screen.blit(self.memPics[i], self.memPicsRect[i].topleft)
                 else:
                     pygame.draw.rect(self.screen, utils.WHITE, self.memPicsRect[i], border_radius=20)
+                    pygame.draw.rect(screen, utils.BLACK, self.memPicsRect[i], 2, border_radius=20)
             pygame.display.flip()
 
             if self.selection1 is not None and self.selection2 is not None:

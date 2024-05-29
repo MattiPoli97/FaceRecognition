@@ -261,3 +261,28 @@ def mask_roundedcorner(picture, radius):
     result.blit(picture, (0, 0))
     result.blit(mask_surface, (0, 0), None, pygame.BLEND_RGBA_MIN)
     return result
+
+def detect_face(cam):
+
+    faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+    minW = 30
+    minH = 30
+
+    while True:
+        ret, img = cam.read()
+        if not ret:
+            break
+
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        faces = faceCascade.detectMultiScale(
+            gray,
+            scaleFactor=1.2,
+            minNeighbors=5,
+            minSize=(int(minW), int(minH)),
+        )
+        print(faces)
+        print(len(faces))
+        return True if len(faces) != 0 else False
+
