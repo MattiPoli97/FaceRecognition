@@ -8,6 +8,7 @@ from face_rec import game
 import os
 import pyttsx3
 from typing import Optional
+import math
 
 # colors
 BLACK = (0, 0, 0)
@@ -25,6 +26,7 @@ Soft_Green = (204, 255, 204)
 Soft_Yellow = (255, 255, 204)
 Soft_Lavender = (230, 230, 255)
 Soft_red = (255, 139, 130)
+Lava_red = (206, 16, 33)
 Sky_blue = (99, 197, 218)
 Emerald_green = (2, 192, 43)
 
@@ -78,9 +80,17 @@ class Button:
         self.color = color if color else (229, 193, 66, 128)
         self.text_color = text_color
         self.hover_color = hover_color
+        self.start_time = time.time()
 
     def draw(self, surface):
-
+        elapsed_time = time.time() - self.start_time
+        scale_factor = 1 + 0.05 *math.sin(elapsed_time * 2* math.pi)
+        
+        new_width = int(self.base_rect.width * scale_factor)
+        new_height = int(self.base_rect.height * scale_factor)
+        self.rect.width = new_width
+        self.rect.height = new_height
+        self.rect.center = self.base_rect.center
         # Draw the rectangle with anti-aliasing
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
 
