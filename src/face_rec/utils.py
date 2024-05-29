@@ -4,7 +4,6 @@ import cv2
 import random
 import datetime
 import time
-from face_rec import game
 import os
 import pyttsx3
 from typing import Optional
@@ -96,9 +95,6 @@ class Button:
         # Draw the rectangle with anti-aliasing
         pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
 
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            pygame.draw.rect(surface, self.color, self.rect, border_radius=20)
-
         if self.icon:
             icon_surface = pygame.image.load(self.icon).convert_alpha()
             icon_surface = pygame.transform.scale(icon_surface, (self.rect.height, self.rect.height))
@@ -119,7 +115,8 @@ class Button:
         pygame.draw.rect(surface, WHITE, self.rect, border_radius=20)
 
     def is_correct(self, position, index):
-        return True if index==position else False
+        return True if index == position else False
+
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
@@ -196,72 +193,6 @@ def play_video_from_images(folder, music_file, screen, display_text, text=None, 
                     frame_index = 0
             else:
                 running = False
-
-
-def detect_face(cam, model, bg_sound, image_folder, music_folder, giochiamo):
-    recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read(model)
-
-    faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
-    font = cv2.FONT_HERSHEY_SIMPLEX
-
-    names = ['', 'Mattia', 'Diana', 'Giulia']
-    id = len(names) - 1
-
-    minW = 30
-    minH = 30
-
-    endTime = datetime.datetime.now() + datetime.timedelta(seconds=10)
-    while True:
-        ret, img = cam.read()
-        if not ret:
-            break
-
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        faces = faceCascade.detectMultiScale(
-            gray,
-            scaleFactor=1.2,
-            minNeighbors=5,
-            minSize=(int(minW), int(minH)),
-        )
-
-        for (x, y, w, h) in faces:
-
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-            id, confidence = recognizer.predict(gray[y:y + h, x:x + w])
-
-            # Check if confidence is less them 100 ==> "0" is perfect match
-            if (confidence < 100):
-                id = names[id]
-                confidence = "  {0}%".format(round(100 - confidence))
-            else:
-                id = "unknown"
-                confidence = "  {0}%".format(round(100 - confidence))
-
-            cv2.putText(img, str(id), (x + 5, y - 5), font, 1, (255, 255, 255), 2)
-            cv2.putText(img, str(confidence), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
-
-        if id in names:
-            # pygame.mixer.music.set_volume(1)
-            time.sleep(2)
-            cam.release()
-            cv2.destroyAllWindows()
-            game.main(input, model, image_folder, music_folder, bg_sound, giochiamo)
-
-        if datetime.datetime.now() >= endTime:
-            pygame.mixer.music.set_volume(1)
-            cam.release()
-            cv2.destroyAllWindows()
-            game.main(input, model, image_folder, music_folder, bg_sound, giochiamo)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    cam.release()
-    cv2.destroyAllWindows()
 
 def read(text):
     # Initialize the TTS engine

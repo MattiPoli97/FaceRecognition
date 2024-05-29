@@ -289,7 +289,7 @@ class GameBase:
         y_1 = (self.gameHeight - rect_height) // 3
         y_2 = (self.gameHeight - rect_height) * 2//3
         y_3 = self.gameHeight - rect_height
-        y_4 = self.gameHeight - rect_height -20
+        y_4 = self.gameHeight - rect_height -V20
 
         text_complete = "Completa il proverbio"
         first_words = image_path.split()[:len(image_path.split()) // 2 + 1]  # select half of the words of the proverb
@@ -304,7 +304,7 @@ class GameBase:
         solution_b = utils.Button(x_right, y_3, self.sol_width, self.sol_height,
                                   color=utils.YELLOW, text="Soluzione", icon="./icons/icon_help.png")
         solution = utils.Button(x_right, y_4, rect_width, rect_height,
-                                color=utils.GREY, text=last_part)
+                                color=utils.GREY, text=last_part, )
 
 
         complete.draw(self.screen)
@@ -444,12 +444,15 @@ class MemoryGame(GameBase):
         super().__init__(input, screen, model, images, music, bg_sound)
 
         # Game variables
-        self.picSize = self.gameWidth // 4
-        self.gameColumns = 3
+        self.picSize = self.gameWidth // 5
+        self.gameColumns = 4
         self.gameRows = 2
         padding = self.gameWidth // 40
         self.leftMargin = (self.gameWidth - (self.picSize * self.gameColumns + padding * (self.gameColumns - 1))) // 2
-        self.topMargin = (self.gameHeight - (self.picSize * self.gameRows + padding * (self.gameRows - 1))) // 2
+        self.topMargin = (self.gameHeight - (self.picSize * self.gameRows + padding * (self.gameRows - 1)) + self.gameHeight // 6 + self.gameWidth // 45) // 2
+        explanation = "Trova le coppie"
+        self.button_explanation = utils.Button(x_title, y_top, title_width, button_height,
+                                               color=utils.WHITE, text=explanation)
 
         self.selection1 = None
         self.selection2 = None
@@ -462,7 +465,7 @@ class MemoryGame(GameBase):
 
         # Create list of Memory Pictures
         self.memoryPictures = images
-        selected_images = random.sample(self.memoryPictures, 3)  # Randomly select 3 unique images
+        selected_images = random.sample(self.memoryPictures, 4)  # Randomly select 3 unique images
         self.memoryPictures = selected_images * 2  # Duplicate selected images to create pairs
         random.shuffle(self.memoryPictures)  # Shuffle the list of images
 
@@ -495,6 +498,7 @@ class MemoryGame(GameBase):
             self.screen.fill(utils.Soft_Green)
             self.exit_button.draw(self.screen)
             self.home_button.draw(self.screen)
+            self.button_explanation.draw(self.screen)
 
             self.enlarged_image = True
 
@@ -647,7 +651,7 @@ class FotoFlow(GameBase):
                     flow_scroll_x = 0
 
             if flow_alpha > 0:
-                flow_alpha -= 20
+                flow_alpha -= 2
 
             pygame.display.flip()
 
