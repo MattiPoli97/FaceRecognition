@@ -120,6 +120,7 @@ class Button:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
 
+
 def play_video_from_images(folder, music_file, screen, display_text, text=None, goon_button: Optional[Button] = None,
                            solution_button: Optional[Button] = None, solution1: Optional[Button] = None, solution2: Optional[Button] = None):
     clock = pygame.time.Clock()
@@ -194,6 +195,7 @@ def play_video_from_images(folder, music_file, screen, display_text, text=None, 
             else:
                 running = False
 
+
 def read(text):
     # Initialize the TTS engine
     engine = pyttsx3.init()
@@ -204,16 +206,18 @@ def read(text):
             idx = voice.id
         
     engine.setProperty('voice', idx)
-    engine.setProperty('rate', 150) # Set the speech rate (words per minute), default is 200
+    engine.setProperty('rate', 150)  # Set the speech rate (words per minute), default is 200
     #engine.setProperty('pitch', 0.5)
     # Use the TTS engine to read the provided text
     engine.say(text)
     engine.runAndWait()
 
+
 def text_sound(mp3_path):
     audio = pygame.mixer.Sound(mp3_path)
     audio.play()
     pygame.time.wait(int(audio.get_length() * 1000))  # Wait for the audio to finish playing
+
 
 def fade_out_sound(sound, duration):
     original_volume = sound.get_volume()
@@ -223,6 +227,7 @@ def fade_out_sound(sound, duration):
         sound.set_volume(new_volume)
         pygame.time.delay(100)  # Adjust delay to control fade-out speed
     sound.stop()
+
 
 def fade_in_sound(sound, duration):
     original_volume = sound.get_volume()
@@ -234,6 +239,7 @@ def fade_in_sound(sound, duration):
         sound.set_volume(new_volume)
         pygame.time.delay(int(duration / steps))
 
+
 def mantain_aspectratio(picture, windowWidth, windowHeight):
     original_width, original_height = picture.get_rect().size
     width_ratio = windowWidth / original_width
@@ -242,6 +248,7 @@ def mantain_aspectratio(picture, windowWidth, windowHeight):
     scaled_width = int(original_width * scaling_factor)
     scaled_height = int(original_height * scaling_factor)
     return scaled_width, scaled_height
+
 
 def mask_roundedcorner(picture, radius):
     # Create mask for rounded corners
@@ -261,6 +268,7 @@ def mask_roundedcorner(picture, radius):
     result.blit(picture, (0, 0))
     result.blit(mask_surface, (0, 0), None, pygame.BLEND_RGBA_MIN)
     return result
+
 
 def detect_face(cam):
 

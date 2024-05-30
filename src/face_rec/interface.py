@@ -61,6 +61,84 @@ button_title = utils.Button(x_title, y_top, title_width, button_height,
 
 def main(avatar, model, images, music):
 
+    def start_application():
+        screen.fill(utils.BLACK)
+        bg_sound.set_volume(0.2)
+
+        utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, True,
+                                     "Il giardino parlante ti dà il benvenuto!")
+        bg_sound.set_volume(1)
+
+        image = pygame.image.load('Background.png').convert_alpha()
+        SCALED_WIDTH, SCALED_HEIGTH = utils.mantain_aspectratio(image, SCREEN_WIDTH, SCREEN_HEIGHT)
+        image_scaled = pygame.transform.scale(image, (SCALED_WIDTH, SCALED_HEIGTH))
+        rotated_scaled_image = pygame.transform.flip(image_scaled, True, False)
+        background_images = [image_scaled, rotated_scaled_image, image_scaled, rotated_scaled_image]
+        background_index = 0
+        background_alpha = 255  # Initial alpha value for fading
+        background_scroll_x = 0
+        background_scroll_speed = 2.5
+
+        bg_running = True
+        scrolling_enabled = True
+        game_started = False
+        giochiamo = False
+
+        while bg_running:
+
+            screen.blit(background_images[background_index], (background_scroll_x, 0))
+            screen.blit(background_images[1 - background_index], (background_scroll_x + SCALED_WIDTH, 0))
+
+            fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+            fade_surface.fill((0, 0, 0))
+            fade_surface.set_alpha(background_alpha)
+            screen.blit(fade_surface, (0, 0))
+
+            if not scrolling_enabled:
+                background_scroll_x -= background_scroll_speed
+                if background_scroll_x <= -SCALED_WIDTH:
+                    background_scroll_x = 0
+
+            if background_alpha > 0:
+                background_alpha -= 5
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN and not game_started:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    if (button_x_l <= mouse_x <= button_x_l + button_width
+                            and button_y <= mouse_y <= button_y + button_height):
+                        game_started, giochiamo = True, True
+
+                    if (button_x_r <= mouse_x <= button_x_r + button_width
+                            and button_y <= mouse_y <= button_y + button_height):
+                        game_started = True
+
+                    if exit_button.is_clicked(pygame.mouse.get_pos()):
+                        pygame.quit()
+
+                    if home_button.is_clicked(pygame.mouse.get_pos()):
+                        bg_running = False
+
+            button_l.draw(screen)
+            button_r.draw(screen)
+            exit_button.draw(screen)
+            home_button.draw(screen)
+            button_title.draw(screen)
+
+            pygame.display.flip()
+
+            pygame.time.Clock().tick(60)
+
+            if game_started:
+                while background_alpha < 255:
+                    fade_surface.set_alpha(background_alpha)
+                    background_alpha += 5
+
+                    screen.blit(fade_surface, (0, 0))
+                    pygame.display.flip()
+
+                game_main(avatar, screen, model, images, music, bg_sound, giochiamo)
+
     cam = cv2.VideoCapture(0)
 
     while leaves_running:
@@ -76,86 +154,11 @@ def main(avatar, model, images, music):
         if detection:
             cam.release()
             cv2.destroyAllWindows()
+            start_application()
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN or detection:
-                screen.fill(utils.BLACK)
-                bg_sound.set_volume(0.2)
-
-                utils.play_video_from_images(avatar, "./avatar/intro.mp4", screen, True,"Il giardino parlante ti dà il benvenuto!")
-                bg_sound.set_volume(1)
-                
-                image = pygame.image.load('Background.png').convert_alpha()
-                SCALED_WIDTH, SCALED_HEIGTH = utils.mantain_aspectratio(image, SCREEN_WIDTH, SCREEN_HEIGHT)
-                image_scaled = pygame.transform.scale(image,(SCALED_WIDTH, SCALED_HEIGTH))
-                rotated_scaled_image = pygame.transform.flip(image_scaled, True, False)
-                background_images = [image_scaled, rotated_scaled_image, image_scaled, rotated_scaled_image]
-                background_index = 0
-                background_alpha = 255  # Initial alpha value for fading
-                background_scroll_x = 0
-                background_scroll_speed = 2.5
-
-                bg_running = True
-                scrolling_enabled = True
-                game_started = False
-                giochiamo = False
-
-                while bg_running:
-
-                    screen.blit(background_images[background_index], (background_scroll_x, 0))
-                    screen.blit(background_images[1 - background_index], (background_scroll_x + SCALED_WIDTH, 0))
-
-                    fade_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-                    fade_surface.fill((0, 0, 0))
-                    fade_surface.set_alpha(background_alpha)
-                    screen.blit(fade_surface, (0, 0))
-
-                    if not scrolling_enabled:
-                        background_scroll_x -= background_scroll_speed
-                        if background_scroll_x <= -SCALED_WIDTH:
-                            background_scroll_x = 0
-
-                    if background_alpha > 0:
-                        background_alpha -= 5
-
-                    for event in pygame.event.get():
-                        if event.type == pygame.MOUSEBUTTONDOWN and not game_started:
-                            mouse_x, mouse_y = pygame.mouse.get_pos()
-                            if (button_x_l <= mouse_x <= button_x_l + button_width
-                                    and button_y <= mouse_y <= button_y + button_height):
-                                game_started, giochiamo = True, True
-
-                            if (button_x_r <= mouse_x <= button_x_r + button_width
-                                    and button_y <= mouse_y <= button_y + button_height):
-                                game_started = True
-
-                            if exit_button.is_clicked(pygame.mouse.get_pos()):
-                                pygame.quit()
-
-                            if home_button.is_clicked(pygame.mouse.get_pos()):
-                                bg_running = False
-
-                    button_l.draw(screen)
-                    button_r.draw(screen)
-                    exit_button.draw(screen)
-                    home_button.draw(screen)
-                    button_title.draw(screen)
-
-                    pygame.display.flip()
-
-                    pygame.time.Clock().tick(60)
-
-                    if game_started:
-                        while background_alpha < 255:
-                            fade_surface.set_alpha(background_alpha)
-                            background_alpha += 5
-
-                            screen.blit(fade_surface, (0, 0))
-                            pygame.display.flip()
-
-                        game_main(avatar, screen, model, images, music, bg_sound, giochiamo)
-                        #cam = cv2.VideoCapture(0)
-                        #utils.detect_face(cam, model, bg_sound, images, music, giochiamo)
+                start_application()
 
     pygame.quit()
 
@@ -534,7 +537,7 @@ class MemoryGame(GameBase):
                     self.screen.blit(self.memPics[i], self.memPicsRect[i].topleft)
                 else:
                     pygame.draw.rect(self.screen, utils.WHITE, self.memPicsRect[i], border_radius=20)
-                    pygame.draw.rect(screen, utils.BLACK, self.memPicsRect[i], 2, border_radius=20)
+                    pygame.draw.rect(screen, utils.BLACK, self.memPicsRect[i], 1, border_radius=20)
             pygame.display.flip()
 
             if self.selection1 is not None and self.selection2 is not None:
