@@ -554,7 +554,7 @@ class MemoryGame(GameBase):
                     if image_path.split('_')[0] == "music":
                         super().music_scene(start_time)
 
-                    elif len(image_path.split()) > 1:  # se il path ha più di una parola
+                    elif len(image_path.split()) > 2:  # se il path ha più di due parole
                         super().proverb_scene(image_path, start_time)
 
                     else:
@@ -607,9 +607,9 @@ class FotoFlow(GameBase):
         flow_scroll_x = 0
         flow_scroll_speed = self.gameWidth//100
 
-        running = True
+        ff_running = True
         scrolling_enabled = True
-        while running:
+        while ff_running:
             self.screen.fill(utils.WHITE)
             total_width = len(self.flowPics) * self.scaled_width
             for i, image in enumerate(self.flowPics):
@@ -626,13 +626,15 @@ class FotoFlow(GameBase):
             fade_surface.set_alpha(flow_alpha)
             self.screen.blit(fade_surface, (0, 0))
 
+            self.enlarged_image = True
+
             for event in pygame.event.get():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
 
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
-                        running = False
+                        ff_running = False
                         break
                     if self.home_button.is_clicked(pygame.mouse.get_pos()):
                         main("./frames", self.model, self.images, self.music)
@@ -643,7 +645,7 @@ class FotoFlow(GameBase):
                         image_x = flow_scroll_x + i * self.scaled_width
                         if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
                             start_time = time.time()
-                            self.enlarged_image = True
+
                             super().enlarge_image(self.flowing_images[i], (self.enlarged_size, self.enlarged_size))
 
                             if image_path.split('_')[0] == "music":
