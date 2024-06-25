@@ -605,7 +605,7 @@ class FotoFlow(GameBase):
     def play(self):
         flow_alpha = 255  # Initial alpha value for fading
         flow_scroll_x = 0
-        flow_scroll_speed = self.gameWidth//100
+        flow_scroll_speed = self.gameWidth//130
 
         ff_running = True
         scrolling_enabled = True
@@ -651,7 +651,7 @@ class FotoFlow(GameBase):
                             if image_path.split('_')[0] == "music":
                                 super().music_scene(start_time)
 
-                            elif len(image_path.split()) > 1:  # se il path ha più di una parola
+                            elif len(image_path.split()) > 2:  # se il path ha più di una parola
                                 super().proverb_scene(image_path, start_time)
 
                             else:
