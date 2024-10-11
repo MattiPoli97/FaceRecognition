@@ -560,7 +560,7 @@ class MemoryGame(GameBase):
                     else:
                         super().multiple_choice(image_path, start_time)
                         pygame.time.wait(self.hide_time)
-                        super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
+                        #super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
 
                 else:
                     pygame.time.wait(self.hide_time)
@@ -632,6 +632,7 @@ class FotoFlow(GameBase):
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x, mouse_y = pygame.mouse.get_pos()
+                    print(mouse_x, mouse_y)
 
                     if self.exit_button.is_clicked(pygame.mouse.get_pos()):
                         ff_running = False
@@ -643,7 +644,10 @@ class FotoFlow(GameBase):
                     for i, image in enumerate(self.flowPics):
                         image_path = Path(self.flowing_images[i]).stem
                         image_x = flow_scroll_x + i * self.scaled_width
+                                               
                         if image_x <= mouse_x <= image_x + image.get_width() and 0 <= mouse_y <= image.get_height():
+                            print("dentro all'if:")
+                            print(image_x)
                             start_time = time.time()
 
                             super().enlarge_image(self.flowing_images[i], (self.enlarged_size, self.enlarged_size))
@@ -657,11 +661,14 @@ class FotoFlow(GameBase):
                             else:
                                 super().multiple_choice(image_path, start_time)
                                 pygame.time.wait(self.hide_time)
-                                super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
-
-            if scrolling_enabled:
+                                #super().task_managing(image_path, start_time, (self.map_sizex, self.map_sizey))
+                        
+            if scrolling_enabled:               
                 flow_scroll_x -= flow_scroll_speed
-                if flow_scroll_x <= - (len(self.flowPics)-1) * self.gameWidth:
+                
+                if flow_scroll_x <= - (len(self.flowPics)) * image.get_width():
+                    print("flow_scroll_x viene aggiornato")
+                    print(flow_scroll_x)
                     flow_scroll_x = 0
 
             if flow_alpha > 0:

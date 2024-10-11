@@ -198,12 +198,14 @@ def play_video_from_images(folder, music_file, screen, display_text, text=None, 
 
 def read(text):
     # Initialize the TTS engine
+    
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
 
     for voice in voices:
         if "italian" == voice.name:
             idx = voice.id
+            print(idx)
         
     engine.setProperty('voice', idx)
     engine.setProperty('rate', 150)  # Set the speech rate (words per minute), default is 200
