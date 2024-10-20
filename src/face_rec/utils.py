@@ -161,7 +161,8 @@ def play_video_from_images(folder, music_file, screen, display_text, text=None, 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if (solution_button is not None and solution1 is not None and solution2 is not None
+                if (solution_button is not None and solution1 is not None 
+                        and solution2 is not None
                         and solution_button.is_clicked(pygame.mouse.get_pos())):
                     solution_button.remove(screen)
                     solution1.draw(screen)
